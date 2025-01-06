@@ -15,10 +15,10 @@ file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
 
-MQTT_BROKER = "192.168.1.183" #Your PC's IP
+MQTT_BROKER = "192.168.155.222" #Your PC's IP
 MQTT_PORT = 1883
-MQTT_TOPIC_BUTTON1 = "/esp32/poseHome1"
-MQTT_TOPIC_BUTTON2 = "/esp32/poseHome2"
+MQTT_TOPIC_BUTTON1 = "/button1/task"
+MQTT_TOPIC_BUTTON2 = "/button2/task"
 
 class MQTTtoROSBridge(Node):
     def __init__(self):
@@ -46,40 +46,58 @@ class MQTTtoROSBridge(Node):
         self.get_logger().info(f"Received MQTT message: {msg.payload.decode()}")
 
         try:
+            global data 
             data = int(msg.payload.decode())
         except ValueError:
             self.get_logger().error("Invalid MQTT payload received")
             return
 
         if data == 1:
-            self.get_logger().info("Processing button 1 message")
-            pos_x = float(config['home1']['pos_x'])
-            pos_y = float(config['home1']['pos_y'])
-            quat_w = float(config['home1']['quat_w'])
-            quat_z = float(config['home1']['quat_z'])
-
-            # Create and publish PoseStamped message
-            pose_msg = PoseStamped()
-            pose_msg.header.frame_id = "map"
-            pose_msg.header.stamp = self.get_clock().now().to_msg()
-            pose_msg.pose.position.x = pos_x
-            pose_msg.pose.position.y = pos_y
-            pose_msg.pose.orientation.w = quat_w
-            pose_msg.pose.orientation.z = quat_z
-
-            self.publisher.publish(pose_msg)
-            self.get_logger().info("Published pose to /target_pose")
-
-            # Send goal to Nav2
-            self.send_goal_to_nav2(pose_msg)
+            self.get_logger().info("Processing button 1 message: Running behavior tree 1 - Fetching trolley from chute")
 
         elif data == 2:
-            self.get_logger().info("Processing button 2 message: Running behavior tree")
-            self.run_behavior_tree()
+            self.get_logger().info("Processing button 2 message: Running behavior tree 2- Fetching trolley from outbound")
 
         else:
             self.get_logger().error(f"Message unrecognized: {data}")
             return
+        
+        self.run_behavior_tree()
+
+    def run_behavior_tree(self):
+        # Define the command to run the behavior trees
+        bt_file1 = "tryBT1"
+        bt_file2 = "tryBT2"
+
+        bt_command1 = [
+            "ros2", "run", "talosbot_bt", "start_tree",
+            "--ros-args", "-p",
+            f"bt_file:=/home/gdnuser/ros2_ws/src/talosbot/talosbot_bt/behavior_trees/{bt_file1}.xml"
+        ]
+
+        bt_command2 = [
+            "ros2", "run", "talosbot_bt", "start_tree",
+            "--ros-args", "-p",
+            f"bt_file:=/home/gdnuser/ros2_ws/src/talosbot/talosbot_bt/behavior_trees/{bt_file2}.xml"
+        ]
+
+        try:
+            # Run the command using subprocess
+            self.get_logger().info("Starting behavior tree...")
+
+            if data == 1: 
+                result = subprocess.run(bt_command1, capture_output=True, text=True)
+            if data == 2: 
+                result = subprocess.run(bt_command2, capture_output=True, text=True)
+
+            # Log the output
+            if result.returncode == 0:
+                self.get_logger().info(f"Behavior tree started successfully:\n{result.stdout}")
+            else:
+                self.get_logger().error(f"Behavior tree failed to start:\n{result.stderr}")
+
+        except Exception as e:
+            self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
 
     def send_goal_to_nav2(self, pose):
         # Create a NavigateToPose goal
@@ -112,30 +130,6 @@ class MQTTtoROSBridge(Node):
         else:
             self.get_logger().info('Goal failed.')
 
-    def run_behavior_tree(self):
-        # Define the command to run the behavior trees
-        bt_file = "tryloop3"
-
-        bt_command = [
-            "ros2", "run", "talosbot_bt", "start_tree",
-            "--ros-args", "-p",
-            f"bt_file:=/home/gdnuser/ros2_ws/src/talosbot/talosbot_bt/behavior_trees/{bt_file}.xml"
-        ]
-
-        try:
-            # Run the command using subprocess
-            self.get_logger().info("Starting behavior tree...")
-            result = subprocess.run(bt_command, capture_output=True, text=True)
-
-            # Log the output
-            if result.returncode == 0:
-                self.get_logger().info(f"Behavior tree started successfully:\n{result.stdout}")
-            else:
-                self.get_logger().error(f"Behavior tree failed to start:\n{result.stderr}")
-
-        except Exception as e:
-            self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
-
 def main(args=None):
     rclpy.init(args=args)
     mqtt_to_ros_bridge = MQTTtoROSBridge()
@@ -145,3 +139,25 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
+
+# self.get_logger().info("Processing button 1 message")
+#             pos_x = float(config['home1']['pos_x'])
+#             pos_y = float(config['home1']['pos_y'])
+#             quat_w = float(config['home1']['quat_w'])
+#             quat_z = float(config['home1']['quat_z'])
+
+#             # Create and publish PoseStamped message
+#             pose_msg = PoseStamped()
+#             pose_msg.header.frame_id = "map"
+#             pose_msg.header.stamp = self.get_clock().now().to_msg()
+#             pose_msg.pose.position.x = pos_x
+#             pose_msg.pose.position.y = pos_y
+#             pose_msg.pose.orientation.w = quat_w
+#             pose_msg.pose.orientation.z = quat_z
+
+#             self.publisher.publish(pose_msg)
+#             self.get_logger().info("Published pose to /target_pose")
+
+#             # Send goal to Nav2
+#             self.send_goal_to_nav2(pose_msg)

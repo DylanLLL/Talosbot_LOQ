@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="main">
+    <Sequence>
+      <TalosbotWait duration="0.5"
+                    action_name="/talosbot_wait"/>
+      <TalosbotMoveBaseLinear dist="1.00"
+                              action_name="/talosbot_move_base_linear"/>
+      <TalosbotWait duration="0.5"
+                    action_name="/talosbot_wait"/>
+      <TalosbotMoveBaseAngular angle="-90.0"
+                               action_name="/talosbot_move_base_angular"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="TalosbotMoveBaseAngular"
+            editable="true">
+      <input_port name="angle"
+                  default="0.00">Move Angular - Negative value for CW&#10;            </input_port>
+      <input_port name="action_name"
+                  default="/talosbot_move_base_angular"/>
+    </Action>
+    <Action ID="TalosbotMoveBaseLinear"
+            editable="true">
+      <input_port name="dist"
+                  default="0.00">Move linear&#10;            </input_port>
+      <input_port name="action_name"
+                  default="/talosbot_move_base_linear"/>
+    </Action>
+    <Action ID="TalosbotWait"
+            editable="true">
+      <input_port name="duration"
+                  default="0">Set talosbot to wait&#10;            </input_port>
+      <input_port name="action_name"
+                  default="/talosbot_wait"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
