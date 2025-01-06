@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="main">
+    <RetryUntilSuccessful num_attempts="-1">
+      <ForceFailure>
+        <Delay delay_msec='2000'>
+          <Sequence>
+            <GetNextPoseHelper uuid="{UUID}" pos_x="{POS_X}" pos_y="{POS_Y}" quat_w="{QUAT_W}" quat_z="{QUAT_Z}" post_action="{POST_ACTION}"/>
+            <EndTaskHelper uuid="{UUID}" status="SUCCESS" />
+          </Sequence>
+        </Delay>
+      </ForceFailure>
+    </RetryUntilSuccessful>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="EndTaskHelper"
+            editable="true">
+      <input_port name="uuid"
+                  default="abcd">Task UUID to end the task</input_port>
+    </Action>
+    <Action ID="GetNextPoseHelper"
+            editable="true">
+      <output_port name="pos_x"
+                   default="{POS_X}"/>
+      <output_port name="pos_y"
+                   default="{POS_Y}"/>
+      <output_port name="quat_z"
+                   default="{QUAT_Z}"/>
+      <output_port name="quat_w"
+                   default="{QUAT_W}"/>
+      <output_port name="uuid"
+                   default="{UUID}"/>
+      <output_port name="locations"
+                   default="{LOCATIONS}"/>
+      <output_port name="post_action"
+                   default="{POST_ACTION}">Things to do after completing goal</output_port>
+    </Action>
+    <Action ID="TalosbotNavigateToPose"
+            editable="true">
+      <input_port name="goal_x"
+                  default="{POS_X}"/>
+      <input_port name="goal_y"
+                  default="{POS_Y}"/>
+      <input_port name="quat_z"
+                  default="{QUAT_Z}"/>
+      <input_port name="quat_w"
+                  default="{QUAT_W}"/>
+      <input_port name="action_name"
+                  default="/talosbot_navigate_to_pose"/>
+    </Action>
+    <Action ID="TalosbotWait"
+            editable="true">
+      <input_port name="duration"
+                  default="2.0"/>
+      <input_port name="action_name"
+                  default="/talosbot_wait"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

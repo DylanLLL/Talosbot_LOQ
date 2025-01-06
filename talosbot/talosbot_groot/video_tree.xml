@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="main">
+    <Sequence>
+      <RetryUntilSuccessful num_attempts="5">
+        <TalosbotNavigateToPose goal_x="6.5738"
+                                goal_y="11.075"
+                                quat_z="0.0345"
+                                quat_w="0.9994"
+                                action_name="/navigate_to_pose"/>
+      </RetryUntilSuccessful>
+      <TalosbotGoUnderTrolley go="true"
+                              action_name="/talosbot_go_under_trolley"/>
+      <TalosbotLockingPin up_position="true"
+                          action_name="/talosbot_locking_pin"/>
+      <TalosbotMoveBaseLinear dist="-2.0"
+                              action_name="/talosbot_move_base_linear"/>
+      <RetryUntilSuccessful num_attempts="5">
+        <TalosbotNavigateToPose goal_x="-7.7927"
+                                goal_y="-20.357"
+                                quat_z="-0.633"
+                                quat_w="0.77415"
+                                action_name="/navigate_to_pose"/>
+      </RetryUntilSuccessful>
+      <TalosbotLockingPin up_position="false"
+                          action_name="/talosbot_locking_pin"/>
+      <TalosbotMoveBaseLinear dist="-2.0"
+                              action_name="/talosbot_move_base_linear"/>
+      <RetryUntilSuccessful num_attempts="5">
+        <TalosbotNavigateToPose goal_x="0.0"
+                                goal_y="0.0"
+                                quat_z="0.001"
+                                quat_w="0.99"
+                                action_name="/navigate_to_pose"/>
+      </RetryUntilSuccessful>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="TalosbotGoUnderTrolley"
+            editable="true">
+      <input_port name="go"
+                  default="true">trigger the go under trolley action</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_go_under_trolley"/>
+    </Action>
+    <Action ID="TalosbotLockingPin"
+            editable="true">
+      <input_port name="up_position"
+                  default="false">Set locking pin position</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_locking_pin"/>
+    </Action>
+    <Action ID="TalosbotMoveBaseLinear"
+            editable="true">
+      <input_port name="dist"
+                  default="-0.5">Move linear</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_move_base_linear"/>
+    </Action>
+    <Action ID="TalosbotNavigateToPose"
+            editable="true">
+      <input_port name="goal_x"
+                  default="{POS_X}"/>
+      <input_port name="goal_y"
+                  default="{POS_Y}"/>
+      <input_port name="quat_z"
+                  default="{QUAT_Z}"/>
+      <input_port name="quat_w"
+                  default="{QUAT_W}"/>
+      <input_port name="action_name"
+                  default="/navigate_to_pose"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

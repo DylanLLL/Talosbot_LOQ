@@ -1,0 +1,8 @@
+#Goal
+bool go_under_trolley
+---
+#Result
+bool success
+---
+#Feedback
+string status

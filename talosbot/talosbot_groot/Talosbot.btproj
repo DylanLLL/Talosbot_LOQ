@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" project_name="Talosbot">
+    <include path="main_tree.xml"/>
+    <include path="video_tree.xml"/>
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Action ID="EndTaskHelper" editable="true">
+            <input_port name="uuid" default="abcd">Task UUID to end the task</input_port>
+            <input_port name="status" default="SUCCESS"/>
+        </Action>
+        <Action ID="GetNextPoseHelper" editable="true">
+            <output_port name="pos_x" default="{POS_X}"/>
+            <output_port name="pos_y" default="{POS_Y}"/>
+            <output_port name="quat_z" default="{QUAT_Z}"/>
+            <inout_port name="quat_w" default="{QUAT_W}"/>
+            <output_port name="uuid" default="{UUID}"/>
+            <output_port name="locations" default="{LOCATIONS}"/>
+            <output_port name="post_action" default="{POST_ACTION}">Things to do after completing goal</output_port>
+            <output_port name="second_locations" default="{SECOND_LOCATIONS}"/>
+            <output_port name="second_post_action" default="{SECOND_POST_ACTION}"/>
+        </Action>
+        <Action ID="GetPoseHelper" editable="true">
+            <output_port name="pos_x" default="{POS_X}"/>
+            <output_port name="pos_y" default="{POS_Y}"/>
+            <output_port name="quat_z" default="{QUAT_Z}"/>
+            <inout_port name="quat_w" default="{QUAT_W}"/>
+            <output_port name="locations" default="{LOCATIONS}"/>
+        </Action>
+        <Condition ID="IsBatteryLow" editable="true">
+            <input_port name="min_battery" default="50.0">Minimum battery voltage</input_port>
+            <input_port name="battery_topic" default="/talosbot1/battery_level">Battery topic</input_port>
+        </Condition>
+        <Action ID="TalosbotGoMiddleFrontDoor" editable="true">
+            <input_port name="go" default="true">trigger the action</input_port>
+            <input_port name="action_name" default="/talosbot_go_middle_front_trolley"/>
+        </Action>
+        <Action ID="TalosbotGoUnderTrolley" editable="true">
+            <input_port name="go" default="true">trigger the go under trolley action</input_port>
+            <input_port name="action_name" default="/talosbot_go_under_trolley"/>
+        </Action>
+        <Action ID="TalosbotLockingPin" editable="true">
+            <input_port name="up_position" default="false">Set locking pin position</input_port>
+            <input_port name="action_name" default="/talosbot_locking_pin"/>
+        </Action>
+        <Action ID="TalosbotMoveBaseLinear" editable="true">
+            <input_port name="dist" default="-0.5">Move linear</input_port>
+            <input_port name="action_name" default="/talosbot_move_base_linear"/>
+        </Action>
+        <Action ID="TalosbotNavigateToPose" editable="true">
+            <input_port name="goal_x" default="{POS_X}"/>
+            <input_port name="goal_y" default="{POS_Y}"/>
+            <input_port name="quat_z" default="{QUAT_Z}"/>
+            <input_port name="quat_w" default="{QUAT_W}"/>
+            <input_port name="action_name" default="/navigate_to_pose"/>
+        </Action>
+        <Action ID="TalosbotWait" editable="true">
+            <input_port name="duration" default="2.0"/>
+            <input_port name="action_name" default="/talosbot_wait"/>
+        </Action>
+    </TreeNodesModel>
+</root>

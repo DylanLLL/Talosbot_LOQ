@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree>
+    <!-- <Fallback> -->
+
+      <Sequence>
+
+        <!-- Homing -->
+        <TalosbotLockingPin action_name="/talosbot_locking_pin" up_position="false" />
+        <TalosbotNavigateToPose action_name="/navigate_to_pose" goal_x="7.306" goal_y="1.776" quat_w="0.037" quat_z="0.999"/>
+
+        <TalosbotNavigateToPose action_name="/navigate_to_pose" goal_x="-0.256" goal_y="-0.500" quat_w="0.739" quat_z="-0.682"/>
+        <TalosbotWait action_name="/talosbot_wait" duration="2"/>
+        <TalosbotGoUnderTrolley action_name="/talosbot_go_under_trolley" go="true"/>
+        <TalosbotLockingPin action_name="/talosbot_locking_pin" up_position="true" />
+        <TalosbotMoveBaseLinear action_name="/talosbot_move_base_linear" dist="-1.0" />
+
+        <TalosbotNavigateToPose action_name="/navigate_to_pose" goal_x="-5.075" goal_y="0.157" quat_w="0.631" quat_z="0.777"/>
+        <TalosbotWait action_name="/talosbot_wait" duration="2"/>
+        <TalosbotLockingPin action_name="/talosbot_locking_pin" up_position="false" />
+        <TalosbotMoveBaseLinear action_name="/talosbot_move_base_linear" dist="-2.0" />
+
+        <TalosbotNavigateToPose action_name="/navigate_to_pose" goal_x="7.306" goal_y="1.776" quat_w="0.037" quat_z="0.999"/>
+
+      </Sequence>
+    <!-- </Fallback> -->
+
+
+  </BehaviorTree>
+</root>

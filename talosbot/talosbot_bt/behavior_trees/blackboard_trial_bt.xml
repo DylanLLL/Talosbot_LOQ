@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree>
+      <Sequence>
+        <GetNextPoseHelper uuid="{UUID}" pos_x="{POS_X}" pos_y="{POS_Y}" quat_w="{QUAT_W}" quat_z="{QUAT_Z}" post_action="{POST_ACTION}"/>
+        <PrintPoseHelper pos_x="{POS_X}" pos_y="{POS_Y}" quat_w="{QUAT_W}" quat_z="{QUAT_Z}"/>
+
+        <RetryUntilSuccessful num_attempts="5">
+          <TalosbotNavigateToPose action_name="/navigate_to_pose" goal_x="{POS_X}" goal_y="{POS_Y}" quat_w="{QUAT_W}" quat_z="{QUAT_Z}"/>
+        </RetryUntilSuccessful>
+        
+        <ForceSuccess>
+          <Precondition if="POST_ACTION == 'WAIT_5S'">
+              <TalosbotWait action_name="/talosbot_wait" duration="5"/>
+          </Precondition>
+        </ForceSuccess>
+        
+        <ForceSuccess>
+          <Precondition if="POST_ACTION == 'MOVE_BACK_0_5_M'">
+            <Sequence>
+              <TalosbotWait action_name="/talosbot_wait" duration="2"/>
+              <TalosbotMoveBaseLinear action_name="/talosbot_move_base_linear" dist="-1.5" />
+              <TalosbotWait action_name="/talosbot_wait" duration="2"/>
+            </Sequence>
+          </Precondition>
+        </ForceSuccess>
+
+        <EndTaskHelper uuid="{UUID}" />
+      </Sequence>
+  </BehaviorTree>
+</root>

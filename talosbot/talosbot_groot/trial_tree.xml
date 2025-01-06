@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="main">
+    <Sequence>
+      <TalosbotGoMiddleFrontDoor go="true"
+                                 action_name="/talosbot_go_middle_front_trolley"/>
+      <TalosbotMoveBaseLinear dist="2.5"
+                              action_name="/talosbot_move_base_linear"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="TalosbotGoMiddleFrontDoor"
+            editable="true">
+      <input_port name="go"
+                  default="true">trigger the action</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_go_middle_front_door"/>
+    </Action>
+    <Action ID="TalosbotMoveBaseLinear"
+            editable="true">
+      <input_port name="dist"
+                  default="-0.5">Move linear</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_move_base_linear"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

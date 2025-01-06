@@ -1,0 +1,8 @@
+#Goal
+bool relocalize
+---
+#Result
+bool success
+---
+#Feedback
+string status

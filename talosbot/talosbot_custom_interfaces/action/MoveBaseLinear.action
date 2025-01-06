@@ -1,0 +1,8 @@
+#Goal
+float32 dist
+---
+#Result
+bool success
+---
+#Feedback
+string status

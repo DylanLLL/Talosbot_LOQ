@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="main">
+    <Sequence>
+      <TalosbotMoveBaseLinear dist="0.5"
+                              action_name="/talosbot_move_base_linear"/>
+      <RetryUntilSuccessful num_attempts="5">
+        <TalosbotNavigateToPose goal_x="6.92055"
+                                goal_y="11.7135"
+                                quat_z="-0.0139559"
+                                quat_w="0.999903"
+                                action_name="/navigate_to_pose"/>
+      </RetryUntilSuccessful>
+      <TalosbotGoUnderTrolley go="true"
+                              action_name="/talosbot_go_under_trolley"/>
+      <TalosbotLockingPin up_position="true"
+                          action_name="/talosbot_locking_pin"/>
+      <TalosbotMoveBaseLinear dist="-2.0"
+                              action_name="/talosbot_move_base_linear"/>
+      <RetryUntilSuccessful num_attempts="5">
+        <TalosbotNavigateToPose goal_x="-1.88793"
+                                goal_y="-18.1821"
+                                quat_z="0.999663"
+                                quat_w="-0.0259637"
+                                action_name="/navigate_to_pose"/>
+      </RetryUntilSuccessful>
+      <TalosbotMoveBaseLinear dist="0.3"
+                              action_name="/talosbot_move_base_linear"/>
+      <TalosbotLockingPin up_position="false"
+                          action_name="/talosbot_locking_pin"/>
+      <TalosbotMoveBaseLinear dist="-2.0"
+                              action_name="/talosbot_move_base_linear"/>
+      <RetryUntilSuccessful num_attempts="5">
+        <TalosbotNavigateToPose goal_x="0.-0.136675"
+                                goal_y="0.118095"
+                                quat_z="0.0.0552418"
+                                quat_w="0.998473"
+                                action_name="/navigate_to_pose"/>
+      </RetryUntilSuccessful>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="TalosbotGoUnderTrolley"
+            editable="true">
+      <input_port name="go"
+                  default="true">trigger the go under trolley action</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_go_under_trolley"/>
+    </Action>
+    <Action ID="TalosbotLockingPin"
+            editable="true">
+      <input_port name="up_position"
+                  default="false">Set locking pin position</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_locking_pin"/>
+    </Action>
+    <Action ID="TalosbotMoveBaseLinear"
+            editable="true">
+      <input_port name="dist"
+                  default="-0.5">Move linear</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_move_base_linear"/>
+    </Action>
+    <Action ID="TalosbotNavigateToPose"
+            editable="true">
+      <input_port name="goal_x"
+                  default="{POS_X}"/>
+      <input_port name="goal_y"
+                  default="{POS_Y}"/>
+      <input_port name="quat_z"
+                  default="{QUAT_Z}"/>
+      <input_port name="quat_w"
+                  default="{QUAT_W}"/>
+      <input_port name="action_name"
+                  default="/navigate_to_pose"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

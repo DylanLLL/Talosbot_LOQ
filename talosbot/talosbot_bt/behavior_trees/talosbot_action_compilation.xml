@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+    <BehaviorTree ID="main">
+        <!-- FILL IN THE TREE CONTENT  -->
+    </BehaviorTree>
+
+    <!-- Description of Node Models (used by Groot) -->
+    <TreeNodesModel>
+        <Action ID="TalosbotMoveBaseAngular"
+                editable="true">
+            <input_port name="angle"
+                        default="0.00">Move Angular - Negative value for CW
+            </input_port>
+            <input_port name="action_name"
+                        default="/talosbot_move_base_angular">
+            </input_port>
+        </Action>
+
+        <Action ID="TalosbotMoveBaseLinear"
+                editable="true">
+            <input_port name="dist"
+                        default="0.00">Move linear
+            </input_port>
+            <input_port name="action_name"
+                        default="/talosbot_move_base_linear">
+            </input_port>
+        </Action>
+
+        <Action ID="TalosbotGoUnderTrolley"
+                editable="true">
+            <input_port name="go"
+                        default="true">Trigger the go under trolley action
+            </input_port>
+            <input_port name="action_name"
+                        default="/talosbot_go_under_trolley">
+            </input_port>
+        </Action>
+
+        <Action ID="TalosbotLockingPin"
+                editable="true">
+            <input_port name="up_position"
+                        default="false">Set locking pin position
+            </input_port>
+            <input_port name="action_name"
+                        default="/talosbot_locking_pin">
+            </input_port>
+        </Action>
+
+        <Action ID="TalosbotWait"
+                editable="true">
+            <input_port name="duration"
+                        default="0">Set talosbot to wait
+            </input_port>
+            <input_port name="action_name"
+                        default="/talosbot_wait">
+            </input_port>
+        </Action>
+
+        <Action ID="TalosbotNavigateToPose"
+                editable="true">
+            <input_port name="goal_x"
+                  default="{POS_X}"/>
+            <input_port name="goal_y"
+                  default="{POS_Y}"/>
+            <input_port name="quat_z"
+                  default="{QUAT_Z}"/>
+            <input_port name="quat_w"
+                  default="{QUAT_W}"/>
+            <input_port name="action_name"
+                  default="/navigate_to_pose"/>
+        </Action>
+
+        <Action ID="TalosbotRelocalize"
+                editable="true">
+            <input_port name="relocalize"
+                        default="false">Set locking pin position
+            </input_port>
+            <input_port name="action_name"
+                        default="/talosbot_relocalize">
+            </input_port>
+        </Action>
+
+    </TreeNodesModel>
+</root>

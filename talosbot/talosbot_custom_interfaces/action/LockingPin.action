@@ -1,0 +1,8 @@
+#Goal
+bool up_position
+---
+#Result
+bool success
+---
+#Feedback
+string status
