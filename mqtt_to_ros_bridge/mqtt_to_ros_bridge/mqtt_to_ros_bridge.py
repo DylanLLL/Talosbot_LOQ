@@ -62,33 +62,31 @@ class MQTTtoROSBridge(Node):
             self.get_logger().error(f"Message unrecognized: {data}")
             return
         
-        self.run_behavior_tree()
+        self.run_behavior_tree(data)
 
-    def run_behavior_tree(self):
+    def run_behavior_tree(self, button_id):
         # Define the command to run the behavior trees
-        bt_file1 = "tryBT1"
-        bt_file2 = "tryBT2"
+        bt_files = {
+            1: "tryBT1",
+            2: "tryBT2"
+        }
 
-        bt_command1 = [
+        bt_file = bt_files.get(button_id)
+        if not bt_file:
+            self.get_logger().error(f"No behavior tree file found for button {button_id}")
+            return
+
+        bt_command = [
             "ros2", "run", "talosbot_bt", "start_tree",
             "--ros-args", "-p",
-            f"bt_file:=/home/gdnuser/ros2_ws/src/talosbot/talosbot_bt/behavior_trees/{bt_file1}.xml"
-        ]
-
-        bt_command2 = [
-            "ros2", "run", "talosbot_bt", "start_tree",
-            "--ros-args", "-p",
-            f"bt_file:=/home/gdnuser/ros2_ws/src/talosbot/talosbot_bt/behavior_trees/{bt_file2}.xml"
+            f"bt_file:=/home/gdnuser/ros2_ws/src/talosbot/talosbot_bt/behavior_trees/{bt_file}.xml"
         ]
 
         try:
             # Run the command using subprocess
             self.get_logger().info("Starting behavior tree...")
 
-            if data == 1: 
-                result = subprocess.run(bt_command1, capture_output=True, text=True)
-            if data == 2: 
-                result = subprocess.run(bt_command2, capture_output=True, text=True)
+            result = subprocess.run(bt_command, capture_output=True, text=True)
 
             # Log the output
             if result.returncode == 0:
