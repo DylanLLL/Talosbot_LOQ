@@ -2,6 +2,7 @@ import rclpy
 import paho.mqtt.client as mqtt
 import os #library to locate the exact location of file
 import subprocess #library to simulate CLI
+import threading #library to enable threading -> executing task/subprocess in another thread / parallel with the main program
 
 from configparser import ConfigParser
 from rclpy.node import Node
@@ -15,7 +16,7 @@ file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
 
-MQTT_BROKER = "192.168.155.222" #Your PC's IP
+MQTT_BROKER = "192.168.162.222" #Your PC's IP
 MQTT_PORT = 1883
 MQTT_TOPIC_BUTTON1 = "/button1/task"
 MQTT_TOPIC_BUTTON2 = "/button2/task"
@@ -83,19 +84,36 @@ class MQTTtoROSBridge(Node):
         ]
 
         try:
-            # Run the command using subprocess
-            self.get_logger().info("Starting behavior tree...")
+            self.get_logger().info(f"Publishing 'in_progress' for button {button_id}")
+            self.mqtt_client.publish(f"/button{button_id}/status", "in_progress")
 
-            result = subprocess.run(bt_command, capture_output=True, text=True)
-
-            # Log the output
-            if result.returncode == 0:
-                self.get_logger().info(f"Behavior tree started successfully:\n{result.stdout}")
-            else:
-                self.get_logger().error(f"Behavior tree failed to start:\n{result.stderr}")
+            # Run the behavior tree in a separate thread
+            threading.Thread(target=self.execute_behavior_tree, args=(bt_command, button_id)).start()
 
         except Exception as e:
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
+            self.mqtt_client.publish(f"/button{button_id}/status", "failed")
+
+    def execute_behavior_tree(self, bt_command, button_id):
+        try:
+            # Run the command using subprocess
+            self.get_logger().info("Starting behavior tree...")
+            result = subprocess.Popen(bt_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+            # Wait for the process to complete
+            stdout, stderr = result.communicate()  # Waits for the process to finish
+
+            # Log the output
+            if result.returncode == 0:
+                self.get_logger().info(f"Behavior tree started successfully:\n{stdout}")
+                self.mqtt_client.publish(f"/button{button_id}/status", "success")
+            else:
+                self.get_logger().error(f"Behavior tree failed to start:\n{stderr}")
+                self.mqtt_client.publish(f"/button{button_id}/status", "failed")
+
+        except Exception as e:
+            self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
+            self.mqtt_client.publish(f"/button{button_id}/status", "failed")
 
     def send_goal_to_nav2(self, pose):
         # Create a NavigateToPose goal
