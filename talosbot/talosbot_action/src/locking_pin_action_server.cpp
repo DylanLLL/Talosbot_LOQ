@@ -76,6 +76,20 @@ private:
     std::thread{ std::bind(&LockingPinActionServer::execute, this, _1), goal_handle }.detach();
   }
 
+  void update_xy_goal_tolerance(double value){
+    // Adjust the Nav2 xy_goal_tolerance parameter dynamically
+    auto parameters_client = std::make_shared<rclcpp::AsyncParametersClient>(this, "controller_server");
+    if (!parameters_client->wait_for_service(std::chrono::seconds(5))) {
+        RCLCPP_ERROR(this->get_logger(), "Failed to connect to parameter server!");
+        return;
+    }
+
+  // Create the parameter update asynchronously
+    parameters_client->set_parameters_atomically({rclcpp::Parameter("general_goal_checker.xy_goal_tolerance", value)});
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    RCLCPP_INFO(this->get_logger(), "xy_goal_tolerance set to: %f", value);
+  }
+
   void execute(const std::shared_ptr<GoalHandleLockingPin> goal_handle)
   {
     RCLCPP_INFO(this->get_logger(), "Executing goal");
@@ -91,8 +105,8 @@ private:
       {
         // Move Up
         command_msg.data = true;
-        if (feedback_ == "TOP")
-        {
+        // if (feedback_ == "TOP")
+        // {
           auto robot_footprint = geometry_msgs::msg::Polygon();
           // float points[4][2] = { {0.75, 0.5}, {0.75, -0.5}, {-0.75, -0.5}, {-0.75, 0.5}}
           auto point1 = geometry_msgs::msg::Point32();
@@ -111,17 +125,20 @@ private:
           robot_footprint.points = {point1, point2, point3, point4};
           local_costmap_pub_->publish(robot_footprint);
           global_costmap_pub_->publish(robot_footprint);
+
+          update_xy_goal_tolerance(0.50);
+
           result->success = true;
           goal_achieved = true;
           // goal_handle->succeed(result);
-        }
+        // }
       }
       else
       {
         // Move Down
         command_msg.data = false;
-        if (feedback_ == "BOTTOM")
-        {
+        // if (feedback_ == "BOTTOM")
+        // {
           auto robot_footprint = geometry_msgs::msg::Polygon();
           // float points[4][2] = { {0.75, 0.5}, {0.75, -0.5}, {-0.75, -0.5}, {-0.75, 0.5}}
           auto point1 = geometry_msgs::msg::Point32();
@@ -141,9 +158,11 @@ private:
           local_costmap_pub_->publish(robot_footprint);
           global_costmap_pub_->publish(robot_footprint);
 
+          update_xy_goal_tolerance(0.08);
+
           result->success = true;
           goal_achieved = true;
-        }
+        // }
       }
       locking_pin_command_pub_->publish(command_msg);
       if (goal_handle->is_canceling())
