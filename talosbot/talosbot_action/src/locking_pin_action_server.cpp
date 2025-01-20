@@ -76,7 +76,7 @@ private:
     std::thread{ std::bind(&LockingPinActionServer::execute, this, _1), goal_handle }.detach();
   }
 
-  void update_xy_goal_tolerance(double value){
+  void update_nav2_parameters(double xy_goal_tolerance_value, double yaw_goal_tolerance_value, double angular_accel_value){
     // Adjust the Nav2 xy_goal_tolerance parameter dynamically
     auto parameters_client = std::make_shared<rclcpp::AsyncParametersClient>(this, "controller_server");
     if (!parameters_client->wait_for_service(std::chrono::seconds(5))) {
@@ -85,9 +85,13 @@ private:
     }
 
   // Create the parameter update asynchronously
-    parameters_client->set_parameters_atomically({rclcpp::Parameter("general_goal_checker.xy_goal_tolerance", value)});
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    RCLCPP_INFO(this->get_logger(), "xy_goal_tolerance set to: %f", value);
+    parameters_client->set_parameters_atomically({rclcpp::Parameter("general_goal_checker.xy_goal_tolerance", xy_goal_tolerance_value)});
+    parameters_client->set_parameters_atomically({rclcpp::Parameter("general_goal_checker.yaw_goal_tolerance", yaw_goal_tolerance_value)});
+    parameters_client->set_parameters_atomically({rclcpp::Parameter("FollowPath.max_angular_accel", angular_accel_value)});
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    RCLCPP_INFO(this->get_logger(), "xy_goal_tolerance set to: %f", xy_goal_tolerance_value);
+    RCLCPP_INFO(this->get_logger(), "yaw_goal_tolerance set to: %f", yaw_goal_tolerance_value);
+    RCLCPP_INFO(this->get_logger(), "angular_accel set to: %f", angular_accel_value);
   }
 
   void execute(const std::shared_ptr<GoalHandleLockingPin> goal_handle)
@@ -98,6 +102,15 @@ private:
     auto feedback = std::make_shared<LockingPin::Feedback>();
     auto result = std::make_shared<LockingPin::Result>();
     bool goal_achieved = false;
+
+    //Nav2 parameters adjusment
+    double xy_goal_tolerance_pinUp = 0.50;
+    double yaw_goal_tolerance_pinUp = 0.25;
+    double angular_accel_pinUp = 1.7;
+    double xy_goal_tolerance_pinDown = 0.08;
+    double yaw_goal_tolerance_pinDown = 0.03;
+    double angular_accel_pinDown = 1.5;
+
     while (!goal_achieved)
     {
       auto command_msg = std_msgs::msg::Bool();
@@ -126,11 +139,10 @@ private:
           local_costmap_pub_->publish(robot_footprint);
           global_costmap_pub_->publish(robot_footprint);
 
-          update_xy_goal_tolerance(0.50);
+          update_nav2_parameters(xy_goal_tolerance_pinUp, yaw_goal_tolerance_pinUp, angular_accel_pinUp);
 
           result->success = true;
           goal_achieved = true;
-          // goal_handle->succeed(result);
         // }
       }
       else
@@ -158,7 +170,7 @@ private:
           local_costmap_pub_->publish(robot_footprint);
           global_costmap_pub_->publish(robot_footprint);
 
-          update_xy_goal_tolerance(0.08);
+          update_nav2_parameters(xy_goal_tolerance_pinDown, yaw_goal_tolerance_pinDown, angular_accel_pinDown);
 
           result->success = true;
           goal_achieved = true;
