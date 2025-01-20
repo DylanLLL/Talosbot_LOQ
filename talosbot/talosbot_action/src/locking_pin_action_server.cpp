@@ -88,7 +88,7 @@ private:
     parameters_client->set_parameters_atomically({rclcpp::Parameter("general_goal_checker.xy_goal_tolerance", xy_goal_tolerance_value)});
     parameters_client->set_parameters_atomically({rclcpp::Parameter("general_goal_checker.yaw_goal_tolerance", yaw_goal_tolerance_value)});
     parameters_client->set_parameters_atomically({rclcpp::Parameter("FollowPath.max_angular_accel", angular_accel_value)});
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     RCLCPP_INFO(this->get_logger(), "xy_goal_tolerance set to: %f", xy_goal_tolerance_value);
     RCLCPP_INFO(this->get_logger(), "yaw_goal_tolerance set to: %f", yaw_goal_tolerance_value);
     RCLCPP_INFO(this->get_logger(), "angular_accel set to: %f", angular_accel_value);
