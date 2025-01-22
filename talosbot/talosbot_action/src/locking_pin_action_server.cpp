@@ -118,8 +118,8 @@ private:
       {
         // Move Up
         command_msg.data = true;
-        // if (feedback_ == "TOP")
-        // {
+        if (feedback_ == "TOP")
+        {
           auto robot_footprint = geometry_msgs::msg::Polygon();
           // float points[4][2] = { {0.75, 0.5}, {0.75, -0.5}, {-0.75, -0.5}, {-0.75, 0.5}}
           auto point1 = geometry_msgs::msg::Point32();
@@ -143,14 +143,14 @@ private:
 
           result->success = true;
           goal_achieved = true;
-        // }
+        }
       }
       else
       {
         // Move Down
         command_msg.data = false;
-        // if (feedback_ == "BOTTOM")
-        // {
+        if (feedback_ == "BOTTOM")
+        {
           auto robot_footprint = geometry_msgs::msg::Polygon();
           // float points[4][2] = { {0.75, 0.5}, {0.75, -0.5}, {-0.75, -0.5}, {-0.75, 0.5}}
           auto point1 = geometry_msgs::msg::Point32();
@@ -174,7 +174,7 @@ private:
 
           result->success = true;
           goal_achieved = true;
-        // }
+        }
       }
       locking_pin_command_pub_->publish(command_msg);
       if (goal_handle->is_canceling())
