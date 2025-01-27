@@ -16,10 +16,11 @@ file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
 
-MQTT_BROKER = "192.168.162.222" #Your PC's IP
+MQTT_BROKER = "192.168.1.183" #Your PC's IP
 MQTT_PORT = 1883
 MQTT_TOPIC_BUTTON1 = "/button1/task"
 MQTT_TOPIC_BUTTON2 = "/button2/task"
+MQTT_TOPIC_BUTTON3 = "/button3/task"
 
 class MQTTtoROSBridge(Node):
     def __init__(self):
@@ -42,6 +43,7 @@ class MQTTtoROSBridge(Node):
         self.get_logger().info("Connected to MQTT Broker!")
         client.subscribe(MQTT_TOPIC_BUTTON1)
         client.subscribe(MQTT_TOPIC_BUTTON2)
+        client.subscribe(MQTT_TOPIC_BUTTON3)
 
     def on_message(self, client, userdata, msg):
         self.get_logger().info(f"Received MQTT message: {msg.payload.decode()}")
@@ -54,10 +56,13 @@ class MQTTtoROSBridge(Node):
             return
 
         if data == 1:
-            self.get_logger().info("Processing button 1 message: Running behavior tree 1 - Fetching trolley from chute")
+            self.get_logger().info("Processing button 1 message: Running behavior tree - Fetching trolley from chute")
 
         elif data == 2:
-            self.get_logger().info("Processing button 2 message: Running behavior tree 2- Fetching trolley from outbound")
+            self.get_logger().info("Processing button 2 message: Running behavior tree - Fetching trolley from outbound")
+
+        elif data == 3:
+            self.get_logger().info("Processing button 3 message: Running behavior tree - Fetching trolley from outbound")
 
         else:
             self.get_logger().error(f"Message unrecognized: {data}")
@@ -69,7 +74,8 @@ class MQTTtoROSBridge(Node):
         # Define the command to run the behavior trees
         bt_files = {
             1: "tryBT1",
-            2: "tryBT2"
+            2: "tryBT2",
+            3: "tryBT2"
         }
 
         bt_file = bt_files.get(button_id)
@@ -101,7 +107,7 @@ class MQTTtoROSBridge(Node):
             result = subprocess.Popen(bt_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
             # Wait for the process to complete
-            stdout, stderr = result.communicate()  # Waits for the process to finish
+            stdout, stderr = result.communicate()
 
             # Log the output
             if result.returncode == 0:
