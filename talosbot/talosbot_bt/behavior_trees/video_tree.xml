@@ -11,8 +11,20 @@
                                 quat_w="0.999903"
                                 action_name="/navigate_to_pose"/>
       </RetryUntilSuccessful>
-      <TalosbotGoUnderTrolley go="true"
-                              action_name="/talosbot_go_under_trolley"/>
+      <Fallback>
+        <TalosbotGoUnderTrolley go="true"
+                                action_name="/talosbot_go_under_trolley"/>
+        <Sequence>
+          <RetryUntilSuccessful num_attempts="5">
+            <TalosbotNavigateToPose goal_x="0.000"
+                                    goal_y="0.000"
+                                    quat_z="0.000"
+                                    quat_w="1.000"
+                                    action_name="/navigate_to_pose"/>
+          </RetryUntilSuccessful>
+          <AlwaysSuccess/>
+        </Sequence>
+      </Fallback>
       <TalosbotLockingPin up_position="true"
                           action_name="/talosbot_locking_pin"/>
       <TalosbotMoveBaseLinear dist="-2.0"
