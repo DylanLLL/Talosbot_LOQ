@@ -16,7 +16,7 @@ file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
 
-MQTT_BROKER = "192.168.1.183" #Your PC's IP
+MQTT_BROKER = "192.168.60.222" #Your PC's IP
 MQTT_PORT = 1883
 MQTT_TOPIC_BUTTON1 = "/button1/task"
 MQTT_TOPIC_BUTTON2 = "/button2/task"
@@ -92,6 +92,7 @@ class MQTTtoROSBridge(Node):
         try:
             self.get_logger().info(f"Publishing 'in_progress' for button {button_id}")
             self.mqtt_client.publish(f"/button{button_id}/status", "in_progress")
+            self.mqtt_client.publish(f"/task/status", "in_progress")
 
             # Run the behavior tree in a separate thread
             threading.Thread(target=self.execute_behavior_tree, args=(bt_command, button_id)).start()
@@ -99,6 +100,7 @@ class MQTTtoROSBridge(Node):
         except Exception as e:
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
             self.mqtt_client.publish(f"/button{button_id}/status", "failed")
+            self.mqtt_client.publish(f"/task/status", "failed")
 
     def execute_behavior_tree(self, bt_command, button_id):
         try:
@@ -113,13 +115,16 @@ class MQTTtoROSBridge(Node):
             if result.returncode == 0:
                 self.get_logger().info(f"Behavior tree started successfully:\n{stdout}")
                 self.mqtt_client.publish(f"/button{button_id}/status", "success")
+                self.mqtt_client.publish(f"/task/status", "success")
             else:
                 self.get_logger().error(f"Behavior tree failed to start:\n{stderr}")
                 self.mqtt_client.publish(f"/button{button_id}/status", "failed")
+                self.mqtt_client.publish(f"/task/status", "failed")
 
         except Exception as e:
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
             self.mqtt_client.publish(f"/button{button_id}/status", "failed")
+            self.mqtt_client.publish(f"/task/status", "failed")
 
     def send_goal_to_nav2(self, pose):
         # Create a NavigateToPose goal
