@@ -16,11 +16,13 @@ file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
 
-MQTT_BROKER = "192.168.60.222" #Your PC's IP
+MQTT_BROKER = "192.168.28.222" #Your PC's IP
 MQTT_PORT = 1883
 MQTT_TOPIC_BUTTON1 = "/button1/task"
 MQTT_TOPIC_BUTTON2 = "/button2/task"
 MQTT_TOPIC_BUTTON3 = "/button3/task"
+MQTT_TOPIC_BUTTON4 = "/button4/task"
+MQTT_TOPIC_BUTTON5 = "/button5/task"
 
 class MQTTtoROSBridge(Node):
     def __init__(self):
@@ -44,6 +46,8 @@ class MQTTtoROSBridge(Node):
         client.subscribe(MQTT_TOPIC_BUTTON1)
         client.subscribe(MQTT_TOPIC_BUTTON2)
         client.subscribe(MQTT_TOPIC_BUTTON3)
+        client.subscribe(MQTT_TOPIC_BUTTON4)
+        client.subscribe(MQTT_TOPIC_BUTTON5)
 
     def on_message(self, client, userdata, msg):
         self.get_logger().info(f"Received MQTT message: {msg.payload.decode()}")
@@ -56,13 +60,19 @@ class MQTTtoROSBridge(Node):
             return
 
         if data == 1:
-            self.get_logger().info("Processing button 1 message: Running behavior tree - Fetching trolley from chute")
+            self.get_logger().info("Processing button 1 message: Running behavior tree - Fetching trolley from chute, delivering to GIN")
 
         elif data == 2:
             self.get_logger().info("Processing button 2 message: Running behavior tree - Fetching trolley from outbound")
 
         elif data == 3:
             self.get_logger().info("Processing button 3 message: Running behavior tree - Fetching trolley from outbound")
+
+        elif data == 4:
+            self.get_logger().info("Processing button 4 message: Running behavior tree - Fetching trolley from GIN, delivering to outbound")
+
+        elif data == 5:
+            self.get_logger().info("Processing button 5 message: Running behavior tree - Moving the AMR linearly")
 
         else:
             self.get_logger().error(f"Message unrecognized: {data}")
@@ -73,9 +83,12 @@ class MQTTtoROSBridge(Node):
     def run_behavior_tree(self, button_id):
         # Define the command to run the behavior trees
         bt_files = {
+            # Button 2 & 3 have the same functionalities
             1: "tryBT1",
             2: "tryBT2",
-            3: "tryBT2"
+            3: "tryBT2",
+            4: "tryBT1",
+            5: "tryBT2"
         }
 
         bt_file = bt_files.get(button_id)
