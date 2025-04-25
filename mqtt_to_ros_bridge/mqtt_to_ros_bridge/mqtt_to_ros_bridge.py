@@ -16,7 +16,7 @@ file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
 
-MQTT_BROKER = "192.168.28.222" #Your PC's IP
+MQTT_BROKER = "10.177.44.19" #Your PC's IP
 MQTT_PORT = 1883
 MQTT_TOPIC_BUTTON1 = "/button1/task"
 MQTT_TOPIC_BUTTON2 = "/button2/task"
