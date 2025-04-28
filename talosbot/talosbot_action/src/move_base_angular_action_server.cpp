@@ -109,6 +109,12 @@ private:
 
       if (goal_handle->is_canceling())
       {
+        geometry_msgs::msg::Twist vel_msg_;
+        vel_msg_.linear.x = 0.00;
+        vel_msg_.linear.y = 0.00;
+        vel_msg_.angular.z = 0.00;
+        cmd_vel_pub_->publish(vel_msg_);
+
         result->success = false;
         goal_handle->canceled(result);
         RCLCPP_INFO(this->get_logger(), "Goal canceled");
