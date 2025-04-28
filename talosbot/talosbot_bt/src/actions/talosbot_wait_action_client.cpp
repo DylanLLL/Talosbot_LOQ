@@ -33,5 +33,10 @@ BT::NodeStatus TalosbotWaitActionClient::onFailure(BT::ActionNodeErrorCode error
 
 void TalosbotWaitActionClient::onHalt()
 {
-}
+  if (auto node = node_.lock())
+  {
+    RCLCPP_WARN(node->get_logger(), "TalosbotWaitActionClient: Cancelling goal due to halt");
+  }
+
+  RosActionNode::onHalt();
 }  // namespace talosbot_bt

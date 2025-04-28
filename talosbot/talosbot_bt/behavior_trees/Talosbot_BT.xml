@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="main">
+    <Timeout msec="300000">
+      <Sequence>
+        <TalosbotLockingPin up_position="false"
+                            action_name="/talosbot_locking_pin"/>
+        <TalosbotWait duration="0.20"
+                      action_name="/talosbot_wait"/>
+        <Timeout msec="120000">
+          <TalosbotNavigateToPose goal_x="6.92055"
+                                  goal_y="11.7135"
+                                  quat_z="-0.0139559"
+                                  quat_w="0.999903"
+                                  action_name="/navigate_to_pose"/>
+        </Timeout>
+        <TalosbotWait duration="0.20"
+                      action_name="/talosbot_wait"/>
+        <Fallback>
+          <TalosbotGoUnderTrolley go="true"
+                                  action_name="/talosbot_go_under_trolley"/>
+          <Sequence>
+            <TalosbotMoveBaseLinear dist="-2.0"
+                                    action_name="/talosbot_move_base_linear"/>
+            <Timeout msec="120000">
+              <TalosbotNavigateToPose goal_x="0.000"
+                                      goal_y="0.000"
+                                      quat_z="0.000"
+                                      quat_w="1.000"
+                                      action_name="/navigate_to_pose"/>
+            </Timeout>
+            <AlwaysFailure/>
+          </Sequence>
+        </Fallback>
+        <TalosbotLockingPin up_position="true"
+                            action_name="/talosbot_locking_pin"/>
+        <TalosbotWait duration="0.20"
+                      action_name="/talosbot_wait"/>
+        <TalosbotMoveBaseLinear dist="-2.0"
+                                action_name="/talosbot_move_base_linear"/>
+        <TalosbotWait duration="0.20"
+                      action_name="/talosbot_wait"/>
+        <Fallback>
+          <Timeout msec="120000">
+            <TalosbotNavigateToPose goal_x="-1.88793"
+                                    goal_y="-18.1821"
+                                    quat_z="0.999663"
+                                    quat_w="-0.0259637"
+                                    action_name="/navigate_to_pose"/>
+          </Timeout>
+          <Sequence>
+            <TalosbotLockingPin up_position="false"
+                                action_name="/talosbot_locking_pin"/>
+            <AlwaysFailure/>
+          </Sequence>
+        </Fallback>
+        <TalosbotLockingPin up_position="false"
+                            action_name="/talosbot_locking_pin"/>
+        <TalosbotWait duration="0.20"
+                      action_name="/talosbot_wait"/>
+        <TalosbotMoveBaseLinear dist="-3.8"
+                                action_name="/talosbot_move_base_linear"/>
+        <TalosbotMoveBaseLinear dist="-2.0"
+                                action_name="/talosbot_move_base_linear"/>
+        <Timeout msec="120000">
+          <TalosbotNavigateToPose goal_x="0.000"
+                                  goal_y="0.000"
+                                  quat_z="0.000"
+                                  quat_w="1.000"
+                                  action_name="/navigate_to_pose"/>
+        </Timeout>
+        <TalosbotRelocalize relocalize="false"
+                            action_name="/talosbot_relocalize"/>
+      </Sequence>
+    </Timeout>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="TalosbotGoUnderTrolley"
+            editable="true">
+      <input_port name="go"
+                  default="true">trigger the go under trolley action</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_go_under_trolley"/>
+    </Action>
+    <Action ID="TalosbotLockingPin"
+            editable="true">
+      <input_port name="up_position"
+                  default="false">Set locking pin position</input_port>
+      <input_port name="action_name"
+                  default="/talosbot_locking_pin"/>
+    </Action>
+    <Action ID="TalosbotMoveBaseLinear"
+            editable="true">
+      <input_port name="dist"
+                  default="0.00">Move linear&#10;            </input_port>
+      <input_port name="action_name"
+                  default="/talosbot_move_base_linear"/>
+    </Action>
+    <Action ID="TalosbotNavigateToPose"
+            editable="true">
+      <input_port name="goal_x"
+                  default="{POS_X}"/>
+      <input_port name="goal_y"
+                  default="{POS_Y}"/>
+      <input_port name="quat_z"
+                  default="{QUAT_Z}"/>
+      <input_port name="quat_w"
+                  default="{QUAT_W}"/>
+      <input_port name="action_name"
+                  default="/navigate_to_pose"/>
+    </Action>
+    <Action ID="TalosbotRelocalize"
+            editable="true">
+      <input_port name="relocalize"
+                  default="false">Set locking pin position&#10;            </input_port>
+      <input_port name="action_name"
+                  default="/talosbot_relocalize"/>
+    </Action>
+    <Action ID="TalosbotWait"
+            editable="true">
+      <input_port name="duration"
+                  default="0">Set talosbot to wait&#10;            </input_port>
+      <input_port name="action_name"
+                  default="/talosbot_wait"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

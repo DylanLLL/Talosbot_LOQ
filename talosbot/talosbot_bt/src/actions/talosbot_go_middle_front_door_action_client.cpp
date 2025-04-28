@@ -33,5 +33,11 @@ BT::NodeStatus TalosbotGoMiddleFrontDoorActionClient::onFailure(BT::ActionNodeEr
 
 void TalosbotGoMiddleFrontDoorActionClient::onHalt()
 {
+  if (auto node = node_.lock())
+  {
+    RCLCPP_WARN(node->get_logger(), "TalosbotGoMiddleFrontDoorActionClient: Cancelling goal due to halt");
+  }
+
+  RosActionNode::onHalt();
 }
 }  // namespace talosbot_bt
