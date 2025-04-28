@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
+    <!--Acts like a placeholder code-->
     <BehaviorTree ID="main">
-        <!-- FILL IN THE TREE CONTENT  -->
-    </BehaviorTree>
+        <Sequence>
+            <TalosbotWait duration="0.5"
+                            action_name="/talosbot_wait"/>
+            <TalosbotMoveBaseAngular angle="90.0"
+                                    action_name="/talosbot_move_base_angular"/>
+            <TalosbotWait duration="0.5"
+                            action_name="/talosbot_wait"/>
+            <TalosbotMoveBaseLinear dist="-1.00"
+                                    action_name="/talosbot_move_base_linear"/>
+        </Sequence>
+  </BehaviorTree>
 
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>

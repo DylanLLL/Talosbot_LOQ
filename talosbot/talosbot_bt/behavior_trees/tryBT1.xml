@@ -2,32 +2,32 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="main">
     <Sequence>
-      <TalosbotWait duration="0.5"
+      <TalosbotWait duration="0.2"
                     action_name="/talosbot_wait"/>
-      <TalosbotMoveBaseLinear dist="1.00"
-                              action_name="/talosbot_move_base_linear"/>
-      <TalosbotWait duration="0.5"
-                    action_name="/talosbot_wait"/>
-      <TalosbotMoveBaseAngular angle="-90.0"
-                               action_name="/talosbot_move_base_angular"/>
+      <Timeout msec="3000">
+        <TalosbotNavigateToPose goal_x="0.000"
+                                goal_y="0.000"
+                                quat_z="0.000"
+                                quat_w="1.000"
+                                action_name="/navigate_to_pose"/>
+      </Timeout>
     </Sequence>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="TalosbotMoveBaseAngular"
+    <Action ID="TalosbotNavigateToPose"
             editable="true">
-      <input_port name="angle"
-                  default="0.00">Move Angular - Negative value for CW&#10;            </input_port>
+      <input_port name="goal_x"
+                  default="{POS_X}"/>
+      <input_port name="goal_y"
+                  default="{POS_Y}"/>
+      <input_port name="quat_z"
+                  default="{QUAT_Z}"/>
+      <input_port name="quat_w"
+                  default="{QUAT_W}"/>
       <input_port name="action_name"
-                  default="/talosbot_move_base_angular"/>
-    </Action>
-    <Action ID="TalosbotMoveBaseLinear"
-            editable="true">
-      <input_port name="dist"
-                  default="0.00">Move linear&#10;            </input_port>
-      <input_port name="action_name"
-                  default="/talosbot_move_base_linear"/>
+                  default="/navigate_to_pose"/>
     </Action>
     <Action ID="TalosbotWait"
             editable="true">
