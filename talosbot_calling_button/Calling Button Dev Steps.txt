@@ -1,0 +1,68 @@
+[ESP32]
+1. Make a basic MQTT connection code in arduino ide.
+2. Fill in the "mqtt_server" variable to be the IP of your target PC / Laptop (because the MQTT broker is located inside that PC).
+3. Flash the ESP32.
+
+4. To register the EPS32 to "Incubus" SSID, contact the IT Support team and request them to register the ESP's MAC Address. (Obtain the MAC Address first of the ESP using arduino IDE)
+ESP32 Board MAC Address: 4c:11:ae:70:0d:24
+Default ESP32 MAC Address: 4C:11:AE:70:0D:24
+
+  // if(button1_read != prev_button1_read){
+  //   if(millis() - prev_button1_press > 250){
+  //     if(!button1_read){
+  //       snprintf(msg, MSG_BUFFER_SIZE, "button 1 is pressed #%ld", value, " times.");
+  //       value++;
+  //       Serial.print("Publish message: ");
+  //       Serial.println(msg);
+  //       client.publish("/topic/pub", msg);
+  //     }
+  //     prev_button1_read = button1_read;
+  //     prev_button1_press = millis();
+  //   }
+  // }
+  
+  char payload_read = (char)payload[0];
+
+  switch(payload_read){
+    case '1':
+      digitalWrite(LED1_PIN, HIGH); 
+      break;
+    case '2':
+      digitalWrite(LED2_PIN, HIGH); 
+      break;
+    case '0':
+      digitalWrite(LED1_PIN, LOW);
+      digitalWrite(LED2_PIN, LOW); 
+      break;
+  }
+
+==============================================================================================================================================================================================
+
+[Laptop / PC]
+1. Install mosquitto.
+	sudo apt install mosquitto mosquitto-clients
+	
+2. Start and enable mosquitto.s
+	sudo systemctl start mosquitto
+	sudo systemctl enable mosquitto
+	
+2a. Restart the broker if necessary
+	sudo systemctl restart mosquitto
+	
+3. If ESP32 is struggling to establish connection, verify broker configuration file:
+	cd /etc/mosquitto
+	sudo nano mosquitto.conf
+	
+	add the following lines:
+		allow_annonymous true
+		listener 1883
+	
+	sudo systemctl restart mosquitto
+	sudo systemctl status mosquitto
+
+4. Check MQTT connection, by opening 2 terminals
+	terminal 1: mosquitto_sub -h localhost -t "/topic/pub"
+	terminal 2: mosquitto_pub -h localhost -t "/topic/sub" -m "2"
+	
+
+
