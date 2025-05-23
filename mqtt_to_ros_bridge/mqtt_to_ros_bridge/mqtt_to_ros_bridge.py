@@ -16,7 +16,7 @@ file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
 
-MQTT_BROKER = "10.177.44.19" #Your PC's IP
+MQTT_BROKER = "192.168.10.222" #Your PC's IP
 MQTT_PORT = 1883
 MQTT_TOPIC_BUTTON1 = "/button1/task"
 MQTT_TOPIC_BUTTON2 = "/button2/task"
@@ -117,27 +117,61 @@ class MQTTtoROSBridge(Node):
 
     def execute_behavior_tree(self, bt_command, button_id):
         try:
-            # Run the command using subprocess
             self.get_logger().info("Starting behavior tree...")
-            result = subprocess.Popen(bt_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-            # Wait for the process to complete
-            stdout, stderr = result.communicate()
+            # Start the process and stream output line-by-line
+            process = subprocess.Popen(bt_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-            # Log the output
-            if result.returncode == 0:
-                self.get_logger().info(f"Behavior tree started successfully:\n{stdout}")
-                self.mqtt_client.publish(f"/button{button_id}/status", "success")
-                self.mqtt_client.publish(f"/task/status", "success")
-            else:
-                self.get_logger().error(f"Behavior tree failed to start:\n{stderr}")
+            stdout_lines = []
+            stderr_lines = []
+
+            while True:
+                # Read line-by-line
+                stdout_line = process.stdout.readline()
+                stderr_line = process.stderr.readline()
+
+                if stdout_line:
+                    stdout_lines.append(stdout_line.strip())
+                    self.get_logger().info(f"[BT STDOUT] {stdout_line.strip()}")
+
+                if stderr_line:
+                    stderr_lines.append(stderr_line.strip())
+                    self.get_logger().error(f"[BT STDERR] {stderr_line.strip()}")
+
+                if stdout_line == '' and stderr_line == '' and process.poll() is not None:
+                    break
+
+            result_code = process.poll()
+
+            # Decide based on output content
+            joined_stdout = '\n'.join(stdout_lines)
+
+            if "FAILURE" in joined_stdout or "Task FAILED" in joined_stdout:
+                self.get_logger().info("Behavior tree execution FAILED based on output.")
                 self.mqtt_client.publish(f"/button{button_id}/status", "failed")
                 self.mqtt_client.publish(f"/task/status", "failed")
+
+            elif "SUCCESS" in joined_stdout or "Task SUCCEEDED" in joined_stdout:
+                self.get_logger().info("Behavior tree execution SUCCEEDED based on output.")
+                self.mqtt_client.publish(f"/button{button_id}/status", "success")
+                self.mqtt_client.publish(f"/task/status", "success")
+
+            else:
+                # Fallback: use return code
+                if result_code == 0:
+                    self.get_logger().info("BT completed with return code 0 but no explicit success message found.")
+                    self.mqtt_client.publish(f"/button{button_id}/status", "success")
+                    self.mqtt_client.publish(f"/task/status", "success")
+                else:
+                    self.get_logger().error("BT failed with non-zero return code.")
+                    self.mqtt_client.publish(f"/button{button_id}/status", "failed")
+                    self.mqtt_client.publish(f"/task/status", "failed")
 
         except Exception as e:
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
             self.mqtt_client.publish(f"/button{button_id}/status", "failed")
             self.mqtt_client.publish(f"/task/status", "failed")
+
 
     def send_goal_to_nav2(self, pose):
         # Create a NavigateToPose goal
