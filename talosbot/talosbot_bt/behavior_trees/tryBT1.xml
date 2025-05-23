@@ -2,15 +2,14 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="main">
     <Sequence>
-      <TalosbotWait duration="0.2"
+      <TalosbotWait duration="0.5"
                     action_name="/talosbot_wait"/>
-      <Timeout msec="3000">
-        <TalosbotNavigateToPose goal_x="0.000"
-                                goal_y="0.000"
-                                quat_z="0.000"
-                                quat_w="1.000"
-                                action_name="/navigate_to_pose"/>
-      </Timeout>
+      <TalosbotMoveBaseAngular angle="90.0"
+                               action_name="/talosbot_move_base_angular"/>
+      <TalosbotWait duration="0.5"
+                    action_name="/talosbot_wait"/>
+      <TalosbotMoveBaseLinear dist="1.00"
+                              action_name="/talosbot_move_base_linear"/>
     </Sequence>
   </BehaviorTree>
 

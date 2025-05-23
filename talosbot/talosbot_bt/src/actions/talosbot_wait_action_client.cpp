@@ -4,6 +4,7 @@
 
 namespace talosbot_bt
 {
+
 bool TalosbotWaitActionClient::setGoal(RosActionNode::Goal& goal)
 {
   // auto timeout = getInput<unsigned>("msec");
@@ -40,3 +41,5 @@ void TalosbotWaitActionClient::onHalt()
 
   RosActionNode::onHalt();
 }  // namespace talosbot_bt
+
+}

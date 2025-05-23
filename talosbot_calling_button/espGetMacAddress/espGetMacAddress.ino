@@ -1,5 +1,5 @@
-#define GET_MAC_ADDRESS_1 0
-#define GET_MAC_ADDRESS_2 1
+#define GET_MAC_ADDRESS_1 1
+#define GET_MAC_ADDRESS_2 0
 
 #include <WiFi.h>
 #include <esp_wifi.h>
