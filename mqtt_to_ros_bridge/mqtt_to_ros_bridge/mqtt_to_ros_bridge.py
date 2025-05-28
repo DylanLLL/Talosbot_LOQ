@@ -119,32 +119,18 @@ class MQTTtoROSBridge(Node):
         try:
             self.get_logger().info("Starting behavior tree...")
 
-            # Start the process and stream output line-by-line
             process = subprocess.Popen(bt_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-            stdout_lines = []
-            stderr_lines = []
+            # Wait for the full process to finish and collect all output
+            stdout, stderr = process.communicate()
+            result_code = process.returncode
 
-            while True:
-                # Read line-by-line
-                stdout_line = process.stdout.readline()
-                stderr_line = process.stderr.readline()
+            # Log everything
+            self.get_logger().info(f"[BT STDOUT]\n{stdout}")
+            self.get_logger().error(f"[BT STDERR]\n{stderr}")
 
-                if stdout_line:
-                    stdout_lines.append(stdout_line.strip())
-                    self.get_logger().info(f"[BT STDOUT] {stdout_line.strip()}")
-
-                if stderr_line:
-                    stderr_lines.append(stderr_line.strip())
-                    self.get_logger().error(f"[BT STDERR] {stderr_line.strip()}")
-
-                if stdout_line == '' and stderr_line == '' and process.poll() is not None:
-                    break
-
-            result_code = process.poll()
-
-            # Decide based on output content
-            joined_stdout = '\n'.join(stdout_lines)
+            # Analyze full output after process completes
+            joined_stdout = stdout.strip()
 
             if "FAILURE" in joined_stdout or "Task FAILED" in joined_stdout:
                 self.get_logger().info("Behavior tree execution FAILED based on output.")
@@ -157,13 +143,13 @@ class MQTTtoROSBridge(Node):
                 self.mqtt_client.publish(f"/task/status", "success")
 
             else:
-                # Fallback: use return code
+                # Fallback to return code
                 if result_code == 0:
-                    self.get_logger().info("BT completed with return code 0 but no explicit success message found.")
+                    self.get_logger().info("BT process completed with code 0 (success fallback).")
                     self.mqtt_client.publish(f"/button{button_id}/status", "success")
                     self.mqtt_client.publish(f"/task/status", "success")
                 else:
-                    self.get_logger().error("BT failed with non-zero return code.")
+                    self.get_logger().error("BT process failed with non-zero return code.")
                     self.mqtt_client.publish(f"/button{button_id}/status", "failed")
                     self.mqtt_client.publish(f"/task/status", "failed")
 
@@ -171,6 +157,7 @@ class MQTTtoROSBridge(Node):
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
             self.mqtt_client.publish(f"/button{button_id}/status", "failed")
             self.mqtt_client.publish(f"/task/status", "failed")
+
 
 
     def send_goal_to_nav2(self, pose):
