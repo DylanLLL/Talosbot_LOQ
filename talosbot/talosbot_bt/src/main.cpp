@@ -17,7 +17,8 @@
 #include <talosbot_bt/actions/talosbot_move_base_linear_action_client.hpp>
 #include <talosbot_bt/actions/talosbot_wait_action_client.hpp>
 #include <talosbot_bt/actions/talosbot_move_base_angular_action_client.hpp>
-#include <talosbot_bt/actions/talosbot_relocalize_action_client.hpp> 
+#include <talosbot_bt/actions/talosbot_relocalize_action_client.hpp>
+#include <talosbot_bt/actions/talosbot_set_tolerance_action_client.hpp> 
 
 
 #include <talosbot_bt/conditions/is_battery_low_condition.hpp>
@@ -38,7 +39,7 @@ using TalosbotMoveBaseLinearActionClient = talosbot_bt::TalosbotMoveBaseLinearAc
 using TalosbotWaitActionClient = talosbot_bt::TalosbotWaitActionClient;
 using TalosbotMoveBaseAngularActionClient = talosbot_bt::TalosbotMoveBaseAngularActionClient;
 using TalosbotRelocalizeActionClient = talosbot_bt::TalosbotRelocalizeActionClient;
-
+using TalosbotSetToleranceActionClient = talosbot_bt::TalosbotSetToleranceActionClient;
 
 using IsBatteryLowCondition = talosbot_bt::IsBatteryLowCondition;
 
@@ -79,8 +80,8 @@ int main(int argc, char** argv)
   factory.registerNodeType<TalosbotWaitActionClient>("TalosbotWait", params);
   factory.registerNodeType<TalosbotMoveBaseAngularActionClient>("TalosbotMoveBaseAngular", params);
   factory.registerNodeType<TalosbotRelocalizeActionClient>("TalosbotRelocalize", params); 
+  factory.registerNodeType<TalosbotSetToleranceActionClient>("TalosbotSetTolerance", params);
  
-
   factory.registerNodeType<IsBatteryLowCondition>("IsBatteryLow");
 
   factory.registerNodeType<GetNextPoseHelper>("GetNextPoseHelper");

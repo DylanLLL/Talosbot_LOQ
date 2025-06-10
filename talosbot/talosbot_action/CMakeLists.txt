@@ -28,7 +28,8 @@ add_library(action_server SHARED
   src/wait_action_server.cpp
   src/move_base_angular_action_server.cpp
   src/relocalize_action_server.cpp
-  src/template_action_server.cpp)
+  src/template_action_server.cpp
+  src/set_tolerance_action_server.cpp)
 
 target_include_directories(action_server PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -60,6 +61,7 @@ rclcpp_components_register_node(action_server PLUGIN "talosbot_action::WaitActio
 rclcpp_components_register_node(action_server PLUGIN "talosbot_action::MoveBaseAngularActionServer" EXECUTABLE talosbot_move_base_angular_action_server)
 rclcpp_components_register_node(action_server PLUGIN "talosbot_action::RelocalizeActionServer" EXECUTABLE talosbot_relocalize_action_server)
 rclcpp_components_register_node(action_server PLUGIN "talosbot_action::TemplateActionServer" EXECUTABLE talosbot_template_action_server)
+rclcpp_components_register_node(action_server PLUGIN "talosbot_action::SetToleranceActionServer" EXECUTABLE talosbot_set_tolerance_action_server)
 
 
 install(TARGETS

@@ -90,5 +90,15 @@
             </input_port>
         </Action>
 
+        <Action ID="TalosbotSetTolerance"
+                editable="true">
+            <input_port name="xy_tolerance"
+                  default="{TOLERANCE_XY}"/>
+            <input_port name="yaw_tolerance"
+                  default="{TOLERANCE_YAW}"/>
+            <input_port name="action_name"
+                  default="/talosbot_set_tolerance"/>
+        </Action>
+
     </TreeNodesModel>
 </root>

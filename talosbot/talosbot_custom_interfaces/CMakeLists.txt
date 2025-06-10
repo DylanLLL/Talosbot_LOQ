@@ -19,7 +19,8 @@ set(action_files
     "action/Wait.action" 
     "action/MoveBaseAngular.action" 
     "action/Relocalize.action"
-    "action/Template.action")
+    "action/Template.action"
+    "action/SetTolerance.action")
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${action_files}
