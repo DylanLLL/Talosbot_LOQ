@@ -1,0 +1,9 @@
+#Goal
+float32 xy_tolerance
+float32 yaw_tolerance
+---
+#Result
+bool success
+---
+#Feedback
+string status

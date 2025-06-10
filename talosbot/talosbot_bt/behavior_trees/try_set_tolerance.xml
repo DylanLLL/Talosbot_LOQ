@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="main">
+    <Sequence>
+      <TalosbotWait duration="0.1"
+                    action_name="/talosbot_wait"/>
+      <TalosbotSetTolerance xy_tolerance="0.10"
+                            yaw_tolerance="0.15"
+                            action_name="/talosbot_set_tolerance"/>
+      <TalosbotNavigateToPose goal_x="1.000"
+                              goal_y="1.000"
+                              quat_z="0.000"
+                              quat_w="1.000"
+                              action_name="/navigate_to_pose"/>
+      <TalosbotWait duration="0.1"
+                    action_name="/talosbot_wait"/>
+      <TalosbotSetTolerance xy_tolerance="0.40"
+                            yaw_tolerance="0.40"
+                            action_name="/talosbot_set_tolerance"/>
+      <TalosbotNavigateToPose goal_x="0.000"
+                              goal_y="0.000"
+                              quat_z="0.000"
+                              quat_w="1.000"
+                              action_name="/navigate_to_pose"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="TalosbotNavigateToPose"
+            editable="true">
+      <input_port name="goal_x"
+                  default="{POS_X}"/>
+      <input_port name="goal_y"
+                  default="{POS_Y}"/>
+      <input_port name="quat_z"
+                  default="{QUAT_Z}"/>
+      <input_port name="quat_w"
+                  default="{QUAT_W}"/>
+      <input_port name="action_name"
+                  default="/navigate_to_pose"/>
+    </Action>
+    <Action ID="TalosbotSetTolerance"
+            editable="true">
+      <input_port name="xy_tolerance"
+                  default="{TOLERANCE_XY}"/>
+      <input_port name="yaw_tolerance"
+                  default="{TOLERANCE_YAW}"/>
+      <input_port name="action_name"
+                  default="/talosbot_set_tolerance"/>
+    </Action>
+    <Action ID="TalosbotWait"
+            editable="true">
+      <input_port name="duration"
+                  default="0">Set talosbot to wait&#10;            </input_port>
+      <input_port name="action_name"
+                  default="/talosbot_wait"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

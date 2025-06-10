@@ -32,6 +32,7 @@ add_executable(
   src/actions/talosbot_move_base_angular_action_client.cpp
   src/actions/talosbot_wait_action_client.cpp
   src/actions/talosbot_relocalize_action_client.cpp
+  src/actions/talosbot_set_tolerance_action_client.cpp
   src/conditions/is_battery_low_condition.cpp
   src/helper/get_next_pose_helper.cpp
   src/helper/get_pose_helper.cpp
