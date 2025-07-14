@@ -11,17 +11,13 @@ from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
 from rclpy.action import ActionClient
 from nav2_msgs.action import NavigateToPose
-from mqtt_to_ros_bridge.config import MQTT_BROKER, MQTT_PORT, MQTT_TOPIC_BUTTON1, MQTT_TOPIC_BUTTON2, MQTT_TOPIC_BUTTON3, MQTT_TOPIC_BUTTON4, MQTT_TOPIC_BUTTON5, WEB_API_BASE_URL, BUTTON_PRESS_ENDPOINT, TASK_STATUS_ENDPOINT
+from mqtt_to_ros_bridge.config import MQTT_BROKER, MQTT_PORT, WEB_API_BASE_URL, BUTTON_PRESS_ENDPOINT, TASK_STATUS_ENDPOINT, MQTT_TOPIC_BUTTON
 
 #Reading and parsing the contents in the configuration file
 current_dir = os.path.dirname(os.path.realpath(__file__))
 file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
-
-MQTT_BROKER = "localhost" #Your PC's IP
-MQTT_PORT = 1883
-MQTT_TOPIC_BUTTON= "/button/task"
 
 class MQTTtoROSBridge(Node):
     def __init__(self):
