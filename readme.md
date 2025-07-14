@@ -9,4 +9,3 @@ Dependencies on other software packages are listed in the following:
 - pointcloud_to_laserscan
 - ros2_laser_scan_merger
 - talosbot (talosbot ROS2 packages - based on linorobot2)
-test
