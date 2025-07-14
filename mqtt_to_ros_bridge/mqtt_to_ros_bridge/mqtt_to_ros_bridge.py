@@ -21,6 +21,11 @@ from mqtt_to_ros_bridge.config import (
     TASK_HISTORY_ENDPOINT
 )
 
+#Reading and parsing the contents in the configuration file
+current_dir = os.path.dirname(os.path.realpath(__file__))
+file = os.path.join(current_dir, 'config.ini')
+config = ConfigParser()
+config.read(file)
 
 class MQTTtoROSBridge(Node):
     def __init__(self):
@@ -123,7 +128,7 @@ class MQTTtoROSBridge(Node):
         # Define the command to run the behavior trees
         bt_files = {
             1: "tryBT1",
-            2: "tryBT2",
+            2: "tryBT2"
         }
 
         bt_file = bt_files.get(button_id)
@@ -230,7 +235,8 @@ class MQTTtoROSBridge(Node):
 
         except Exception as e:
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
-            self.publish_status(button_id, "failed")
+            self.mqtt_client.publish(f"/button{button_id}/status", "failed")
+            self.mqtt_client.publish(f"/task/status", "failed")
 
 def main(args=None):
     rclpy.init(args=args)
@@ -238,6 +244,5 @@ def main(args=None):
     rclpy.spin(mqtt_to_ros_bridge)
     mqtt_to_ros_bridge.destroy_node()
     rclpy.shutdown()
-
 if __name__ == '__main__':
     main()
