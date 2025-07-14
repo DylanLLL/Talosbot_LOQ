@@ -6,6 +6,6 @@ TASK_HISTORY_ENDPOINT = f"{WEB_API_BASE_URL}/task-history"
 GIN_DATA_ENDPOINT = f"{WEB_API_BASE_URL}/gin-data"
 
 # config mqtt
-MQTT_BROKER = "localhost" #Your PC's IP
+MQTT_BROKER = "192.168.240.222" #Your PC's IP
 MQTT_PORT = 1883
 MQTT_TOPIC_BUTTON = "/button/task"
