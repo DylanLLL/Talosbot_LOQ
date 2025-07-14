@@ -16,13 +16,9 @@ file = os.path.join(current_dir, 'config.ini')
 config = ConfigParser()
 config.read(file)
 
-MQTT_BROKER = "192.168.10.222" #Your PC's IP
+MQTT_BROKER = "localhost" #Your PC's IP
 MQTT_PORT = 1883
-MQTT_TOPIC_BUTTON1 = "/button1/task"
-MQTT_TOPIC_BUTTON2 = "/button2/task"
-MQTT_TOPIC_BUTTON3 = "/button3/task"
-MQTT_TOPIC_BUTTON4 = "/button4/task"
-MQTT_TOPIC_BUTTON5 = "/button5/task"
+MQTT_TOPIC_BUTTON= "/button/task"
 
 class MQTTtoROSBridge(Node):
     def __init__(self):
@@ -43,11 +39,7 @@ class MQTTtoROSBridge(Node):
 
     def on_connect(self, client, userdata, flags, rc):
         self.get_logger().info("Connected to MQTT Broker!")
-        client.subscribe(MQTT_TOPIC_BUTTON1)
-        client.subscribe(MQTT_TOPIC_BUTTON2)
-        client.subscribe(MQTT_TOPIC_BUTTON3)
-        client.subscribe(MQTT_TOPIC_BUTTON4)
-        client.subscribe(MQTT_TOPIC_BUTTON5)
+        client.subscribe(MQTT_TOPIC_BUTTON)
 
     def on_message(self, client, userdata, msg):
         self.get_logger().info(f"Received MQTT message: {msg.payload.decode()}")
@@ -60,19 +52,10 @@ class MQTTtoROSBridge(Node):
             return
 
         if data == 1:
-            self.get_logger().info("Processing button 1 message: Running behavior tree - Fetching trolley from chute, delivering to GIN")
+            self.get_logger().info("Processing button BES message: Running behavior tree - Fetching trolley from GIN, delivering to Outbound (BES)")
 
         elif data == 2:
-            self.get_logger().info("Processing button 2 message: Running behavior tree - Fetching trolley from outbound")
-
-        elif data == 3:
-            self.get_logger().info("Processing button 3 message: Running behavior tree - Fetching trolley from outbound")
-
-        elif data == 4:
-            self.get_logger().info("Processing button 4 message: Running behavior tree - Fetching trolley from GIN, delivering to outbound")
-
-        elif data == 5:
-            self.get_logger().info("Processing button 5 message: Running behavior tree - Moving the AMR linearly")
+            self.get_logger().info("Processing button Return BES message: Running behavior tree - Fetching empty trolley from outbound(BES), delivering to Chute")
 
         else:
             self.get_logger().error(f"Message unrecognized: {data}")
@@ -83,12 +66,8 @@ class MQTTtoROSBridge(Node):
     def run_behavior_tree(self, button_id):
         # Define the command to run the behavior trees
         bt_files = {
-            # Button 2 & 3 have the same functionalities
             1: "tryBT1",
-            2: "tryBT2",
-            3: "tryBT2",
-            4: "tryBT1",
-            5: "tryBT2"
+            2: "tryBT2"
         }
 
         bt_file = bt_files.get(button_id)
@@ -158,49 +137,48 @@ class MQTTtoROSBridge(Node):
             self.mqtt_client.publish(f"/button{button_id}/status", "failed")
             self.mqtt_client.publish(f"/task/status", "failed")
 
+    def main(args=None):
+        rclpy.init(args=args)
+        mqtt_to_ros_bridge = MQTTtoROSBridge()
+        rclpy.spin(mqtt_to_ros_bridge)
+        mqtt_to_ros_bridge.destroy_node()
+        rclpy.shutdown()
+
+    if __name__ == '__main__':
+        main()
 
 
-    def send_goal_to_nav2(self, pose):
-        # Create a NavigateToPose goal
-        goal_msg = NavigateToPose.Goal()
-        goal_msg.pose = pose  # Use the received PoseStamped
 
-        self.get_logger().info(f"Sending goal to Nav2: {pose}")
+    # def send_goal_to_nav2(self, pose):
+    #     # Create a NavigateToPose goal
+    #     goal_msg = NavigateToPose.Goal()
+    #     goal_msg.pose = pose  # Use the received PoseStamped
+
+    #     self.get_logger().info(f"Sending goal to Nav2: {pose}")
         
-        # Wait for the action server to become available
-        self.nav_to_pose_client.wait_for_server()
+    #     # Wait for the action server to become available
+    #     self.nav_to_pose_client.wait_for_server()
 
-        # Send goal and handle the result
-        send_goal_future = self.nav_to_pose_client.send_goal_async(goal_msg)
-        send_goal_future.add_done_callback(self.goal_response_callback)
+    #     # Send goal and handle the result
+    #     send_goal_future = self.nav_to_pose_client.send_goal_async(goal_msg)
+    #     send_goal_future.add_done_callback(self.goal_response_callback)
 
-    def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected by Nav2.')
-            return
+    # def goal_response_callback(self, future):
+    #     goal_handle = future.result()
+    #     if not goal_handle.accepted:
+    #         self.get_logger().info('Goal rejected by Nav2.')
+    #         return
 
-        self.get_logger().info('Goal accepted by Nav2.')
-        result_future = goal_handle.get_result_async()
-        result_future.add_done_callback(self.get_result_callback)
+    #     self.get_logger().info('Goal accepted by Nav2.')
+    #     result_future = goal_handle.get_result_async()
+    #     result_future.add_done_callback(self.get_result_callback)
 
-    def get_result_callback(self, future):
-        result = future.result()
-        if result:
-            self.get_logger().info(f'Nav2 Result: {result.status}')
-        else:
-            self.get_logger().info('Goal failed.')
-
-def main(args=None):
-    rclpy.init(args=args)
-    mqtt_to_ros_bridge = MQTTtoROSBridge()
-    rclpy.spin(mqtt_to_ros_bridge)
-    mqtt_to_ros_bridge.destroy_node()
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
-
+    # def get_result_callback(self, future):
+    #     result = future.result()
+    #     if result:
+    #         self.get_logger().info(f'Nav2 Result: {result.status}')
+    #     else:
+    #         self.get_logger().info('Goal failed.')
 
 # self.get_logger().info("Processing button 1 message")
 #             pos_x = float(config['home1']['pos_x'])
