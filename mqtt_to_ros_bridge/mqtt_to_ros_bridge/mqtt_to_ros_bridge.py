@@ -57,18 +57,18 @@ class MQTTtoROSBridge(Node):
         self.active_tasks = {}
         self.task_start_times = {}
 
-    def send_to_web_api(self, endpoint, data):
-        """Send data to web API"""
-        try:
-            response = requests.post(endpoint, json=data, timeout=5)
-            if response.status_code == 200:
-                self.get_logger().info(f"Successfully sent data to web API: {endpoint}")
-                return response.json()
-            else:
-                self.get_logger().warning(f"Web API responded with status {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            self.get_logger().error(f"Failed to send data to web API: {str(e)}")
-        return None
+    # def send_to_web_api(self, endpoint, data):
+    #     """Send data to web API"""
+    #     try:
+    #         response = requests.post(endpoint, json=data, timeout=5)
+    #         if response.status_code == 200:
+    #             self.get_logger().info(f"Successfully sent data to web API: {endpoint}")
+    #             return response.json()
+    #         else:
+    #             self.get_logger().warning(f"Web API responded with status {response.status_code}")
+    #     except requests.exceptions.RequestException as e:
+    #         self.get_logger().error(f"Failed to send data to web API: {str(e)}")
+    #     return None
     
     def send_to_task_history(self, button_id, status, start_time=None, additional_attrs=None):
         """Send data specifically to task history endpoint"""
@@ -87,7 +87,7 @@ class MQTTtoROSBridge(Node):
             "attr5": attrs.get("attr5", "Auto")
         }
         
-        return self.send_to_web_api(TASK_HISTORY_ENDPOINT, history_data, "Task History")
+        # return self.send_to_web_api(TASK_HISTORY_ENDPOINT, history_data, "Task History")
 
     def on_connect(self, client, userdata, flags, rc):
         self.get_logger().info("Connected to MQTT Broker!")
@@ -111,7 +111,7 @@ class MQTTtoROSBridge(Node):
                 "buttonId": data,
                 "taskDescription": self.task_descriptions[data]
             }
-            self.send_to_web_api(BUTTON_PRESS_ENDPOINT, button_press_data)
+            # self.send_to_web_api(BUTTON_PRESS_ENDPOINT, button_press_data)
             
             # Store start time for duration calculation
             self.task_start_times[data] = datetime.now().isoformat()
@@ -152,7 +152,7 @@ class MQTTtoROSBridge(Node):
                 "status": "in_progress",
                 "startTime": self.task_start_times.get(button_id)
             }
-            self.send_to_web_api(TASK_STATUS_ENDPOINT, status_data)
+            # self.send_to_web_api(TASK_STATUS_ENDPOINT, status_data)
 
             # Run the behavior tree in a separate thread
             threading.Thread(target=self.execute_behavior_tree, args=(bt_command, button_id)).start()
@@ -174,11 +174,11 @@ class MQTTtoROSBridge(Node):
             "startTime": self.task_start_times.get(button_id)
         }
         start_time = self.task_start_times.get(button_id, datetime.now().isoformat())
-        api_response = self.send_to_web_api(TASK_STATUS_ENDPOINT, status_data)
+        # api_response = self.send_to_web_api(TASK_STATUS_ENDPOINT, status_data)
         
-        if api_response and 'stats' in api_response:
-            stats = api_response['stats']
-            self.get_logger().info(f"Overall stats - Total: {stats['total']}, Success: {stats['success']}, Failed: {stats['failed']}")
+        # if api_response and 'stats' in api_response:
+        #     stats = api_response['stats']
+        #     self.get_logger().info(f"Overall stats - Total: {stats['total']}, Success: {stats['success']}, Failed: {stats['failed']}")
 
         # Send to Task History API with additional context
         task_info = self.active_tasks.get(button_id, {})
