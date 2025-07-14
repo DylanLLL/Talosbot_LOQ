@@ -16,7 +16,7 @@
 #if HOTSPOT_WIFI
   const char* ssid = "Dylan";
   const char* password = "koenigsegg";
-  const char* mqtt_server = "192.168.144.222";
+  const char* mqtt_server = "192.168.240.222";
 #endif
 
 #if WH_WIFI
@@ -148,6 +148,7 @@ void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
+    Serial.print( mqtt_server);
     // Create a random client ID
     String clientId = "UniqueMQTTClientID";
     clientId += String(random(0xffff), HEX);
