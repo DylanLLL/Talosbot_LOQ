@@ -11,7 +11,15 @@ from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
 from rclpy.action import ActionClient
 from nav2_msgs.action import NavigateToPose
-from mqtt_to_ros_bridge.config import MQTT_BROKER, MQTT_PORT, MQTT_TOPIC_BUTTON1, MQTT_TOPIC_BUTTON2, MQTT_TOPIC_BUTTON3, MQTT_TOPIC_BUTTON4, MQTT_TOPIC_BUTTON5, WEB_API_BASE_URL, BUTTON_PRESS_ENDPOINT, TASK_STATUS_ENDPOINT
+from mqtt_to_ros_bridge.config import ( 
+    MQTT_BROKER,
+    MQTT_PORT,
+    MQTT_TOPIC_BUTTON,
+    WEB_API_BASE_URL,
+    BUTTON_PRESS_ENDPOINT,
+    TASK_STATUS_ENDPOINT,
+    TASK_HISTORY_ENDPOINT
+)
 
 
 class MQTTtoROSBridge(Node):
@@ -33,12 +41,15 @@ class MQTTtoROSBridge(Node):
 
         # Task descriptions for web API
         self.task_descriptions = {
-            1: "Fetching trolley from chute, delivering to GIN",
-            2: "Fetching trolley from outbound",
-            3: "Fetching trolley from outbound",
-            4: "Mengambil trolley berisi ke BES point port",
-            5: "Mengambil trolley kosong ke INPUT point port"
+            1: "Mengambil trolley berisi ke BES point port",
+            2: "Mengambil trolley kosong ke INPUT point port",
         }
+
+        self.button_names = {
+            1: "Go",
+            2: "Back"
+        }
+        self.active_tasks = {}
         self.task_start_times = {}
 
     def send_to_web_api(self, endpoint, data):
@@ -53,14 +64,29 @@ class MQTTtoROSBridge(Node):
         except requests.exceptions.RequestException as e:
             self.get_logger().error(f"Failed to send data to web API: {str(e)}")
         return None
+    
+    def send_to_task_history(self, button_id, status, start_time=None, additional_attrs=None):
+        """Send data specifically to task history endpoint"""
+        
+        # Generate attributes based on button and status
+        attrs = self.generate_task_attributes(button_id, status, additional_attrs)
+        
+        history_data = {
+            "buttonId": button_id,
+            "status": status,
+            "startTime": start_time,
+            "attr1": attrs.get("attr1", f"Zone {button_id}"),
+            "attr2": attrs.get("attr2", f"Cart-{str(int(datetime.now().timestamp()))[-3:]}"),
+            "attr3": attrs.get("attr3", self.get_load_type(button_id)),
+            "attr4": attrs.get("attr4", self.get_status_description(status)),
+            "attr5": attrs.get("attr5", "Auto")
+        }
+        
+        return self.send_to_web_api(TASK_HISTORY_ENDPOINT, history_data, "Task History")
 
     def on_connect(self, client, userdata, flags, rc):
         self.get_logger().info("Connected to MQTT Broker!")
-        client.subscribe(MQTT_TOPIC_BUTTON1)
-        client.subscribe(MQTT_TOPIC_BUTTON2)
-        client.subscribe(MQTT_TOPIC_BUTTON3)
-        client.subscribe(MQTT_TOPIC_BUTTON4)
-        client.subscribe(MQTT_TOPIC_BUTTON5)
+        client.subscribe(MQTT_TOPIC_BUTTON)
 
     def on_message(self, client, userdata, msg):
         self.get_logger().info(f"Received MQTT message: {msg.payload.decode()}")
@@ -84,6 +110,9 @@ class MQTTtoROSBridge(Node):
             
             # Store start time for duration calculation
             self.task_start_times[data] = datetime.now().isoformat()
+            start_time = datetime.now().isoformat()
+
+            self.send_to_task_history(data, "in_progress", start_time)
             
             # Run behavior tree
             self.run_behavior_tree(data)
@@ -93,12 +122,8 @@ class MQTTtoROSBridge(Node):
     def run_behavior_tree(self, button_id):
         # Define the command to run the behavior trees
         bt_files = {
-            # Button 2 & 3 have the same functionalities
             1: "tryBT1",
             2: "tryBT2",
-            3: "tryBT2",
-            4: "tryBT1",
-            5: "tryBT2"
         }
 
         bt_file = bt_files.get(button_id)
@@ -143,11 +168,31 @@ class MQTTtoROSBridge(Node):
             "status": status,
             "startTime": self.task_start_times.get(button_id)
         }
+        start_time = self.task_start_times.get(button_id, datetime.now().isoformat())
         api_response = self.send_to_web_api(TASK_STATUS_ENDPOINT, status_data)
         
         if api_response and 'stats' in api_response:
             stats = api_response['stats']
             self.get_logger().info(f"Overall stats - Total: {stats['total']}, Success: {stats['success']}, Failed: {stats['failed']}")
+
+        # Send to Task History API with additional context
+        task_info = self.active_tasks.get(button_id, {})
+        additional_attrs = {
+            "attr2": f"Cart-{button_id}-{str(int(datetime.now().timestamp()))[-4:]}",
+            "attr5": "Auto-BT"  # Indicate this was processed by Behavior Tree
+        }
+        
+        history_response = self.send_to_task_history(button_id, status, start_time, additional_attrs)
+        
+        if history_response and history_response.get('success'):
+            self.get_logger().info("Task history updated successfully")
+        
+        # Clean up active task info if task is completed
+        if status in ["success", "failed"]:
+            if button_id in self.active_tasks:
+                del self.active_tasks[button_id]
+            if button_id in self.task_start_times:
+                del self.task_start_times[button_id]
 
     def execute_behavior_tree(self, bt_command, button_id):
         try:
@@ -186,37 +231,6 @@ class MQTTtoROSBridge(Node):
         except Exception as e:
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
             self.publish_status(button_id, "failed")
-
-    def send_goal_to_nav2(self, pose):
-        # Create a NavigateToPose goal
-        goal_msg = NavigateToPose.Goal()
-        goal_msg.pose = pose  # Use the received PoseStamped
-
-        self.get_logger().info(f"Sending goal to Nav2: {pose}")
-        
-        # Wait for the action server to become available
-        self.nav_to_pose_client.wait_for_server()
-
-        # Send goal and handle the result
-        send_goal_future = self.nav_to_pose_client.send_goal_async(goal_msg)
-        send_goal_future.add_done_callback(self.goal_response_callback)
-
-    def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected by Nav2.')
-            return
-
-        self.get_logger().info('Goal accepted by Nav2.')
-        result_future = goal_handle.get_result_async()
-        result_future.add_done_callback(self.get_result_callback)
-
-    def get_result_callback(self, future):
-        result = future.result()
-        if result:
-            self.get_logger().info(f'Nav2 Result: {result.status}')
-        else:
-            self.get_logger().info('Goal failed.')
 
 def main(args=None):
     rclpy.init(args=args)
