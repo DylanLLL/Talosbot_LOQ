@@ -1,14 +1,17 @@
 import rclpy
 import paho.mqtt.client as mqtt
-import os #library to locate the exact location of file
-import subprocess #library to simulate CLI
-import threading #library to enable threading -> executing task/subprocess in another thread / parallel with the main program
-
+import os
+import subprocess
+import threading
+import requests
+import json
+from datetime import datetime
 from configparser import ConfigParser
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
 from rclpy.action import ActionClient
 from nav2_msgs.action import NavigateToPose
+from mqtt_to_ros_bridge.config import MQTT_BROKER, MQTT_PORT, MQTT_TOPIC_BUTTON1, MQTT_TOPIC_BUTTON2, MQTT_TOPIC_BUTTON3, MQTT_TOPIC_BUTTON4, MQTT_TOPIC_BUTTON5, WEB_API_BASE_URL, BUTTON_PRESS_ENDPOINT, TASK_STATUS_ENDPOINT
 
 #Reading and parsing the contents in the configuration file
 current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -37,6 +40,29 @@ class MQTTtoROSBridge(Node):
         self.mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
         self.mqtt_client.loop_start()
 
+        # Task descriptions for web API
+        self.task_descriptions = {
+            1: "Fetching trolley from chute, delivering to GIN",
+            2: "Fetching trolley from outbound",
+            3: "Fetching trolley from outbound",
+            4: "Mengambil trolley berisi ke BES point port",
+            5: "Mengambil trolley kosong ke INPUT point port"
+        }
+        self.task_start_times = {}
+
+    def send_to_web_api(self, endpoint, data):
+        """Send data to web API"""
+        try:
+            response = requests.post(endpoint, json=data, timeout=5)
+            if response.status_code == 200:
+                self.get_logger().info(f"Successfully sent data to web API: {endpoint}")
+                return response.json()
+            else:
+                self.get_logger().warning(f"Web API responded with status {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            self.get_logger().error(f"Failed to send data to web API: {str(e)}")
+        return None
+
     def on_connect(self, client, userdata, flags, rc):
         self.get_logger().info("Connected to MQTT Broker!")
         client.subscribe(MQTT_TOPIC_BUTTON)
@@ -59,9 +85,6 @@ class MQTTtoROSBridge(Node):
 
         else:
             self.get_logger().error(f"Message unrecognized: {data}")
-            return
-        
-        self.run_behavior_tree(data)
 
     def run_behavior_tree(self, button_id):
         # Define the command to run the behavior trees
@@ -86,13 +109,37 @@ class MQTTtoROSBridge(Node):
             self.mqtt_client.publish(f"/button{button_id}/status", "in_progress")
             self.mqtt_client.publish(f"/task/status", "in_progress")
 
+            status_data = {
+                "buttonId": button_id,
+                "status": "in_progress",
+                "startTime": self.task_start_times.get(button_id)
+            }
+            self.send_to_web_api(TASK_STATUS_ENDPOINT, status_data)
+
             # Run the behavior tree in a separate thread
             threading.Thread(target=self.execute_behavior_tree, args=(bt_command, button_id)).start()
 
         except Exception as e:
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
-            self.mqtt_client.publish(f"/button{button_id}/status", "failed")
-            self.mqtt_client.publish(f"/task/status", "failed")
+            self.publish_status(button_id, "failed")
+
+    def publish_status(self, button_id, status):
+        """Publish status to both MQTT and Web API"""
+        # Send to MQTT
+        self.mqtt_client.publish(f"/button{button_id}/status", status)
+        self.mqtt_client.publish(f"/task/status", status)
+        
+        # Send to Web API
+        status_data = {
+            "buttonId": button_id,
+            "status": status,
+            "startTime": self.task_start_times.get(button_id)
+        }
+        api_response = self.send_to_web_api(TASK_STATUS_ENDPOINT, status_data)
+        
+        if api_response and 'stats' in api_response:
+            stats = api_response['stats']
+            self.get_logger().info(f"Overall stats - Total: {stats['total']}, Success: {stats['success']}, Failed: {stats['failed']}")
 
     def execute_behavior_tree(self, bt_command, button_id):
         try:
@@ -113,24 +160,20 @@ class MQTTtoROSBridge(Node):
 
             if "FAILURE" in joined_stdout or "Task FAILED" in joined_stdout:
                 self.get_logger().info("Behavior tree execution FAILED based on output.")
-                self.mqtt_client.publish(f"/button{button_id}/status", "failed")
-                self.mqtt_client.publish(f"/task/status", "failed")
+                self.publish_status(button_id, "failed")
 
             elif "SUCCESS" in joined_stdout or "Task SUCCEEDED" in joined_stdout:
                 self.get_logger().info("Behavior tree execution SUCCEEDED based on output.")
-                self.mqtt_client.publish(f"/button{button_id}/status", "success")
-                self.mqtt_client.publish(f"/task/status", "success")
+                self.publish_status(button_id, "success")
 
             else:
                 # Fallback to return code
                 if result_code == 0:
                     self.get_logger().info("BT process completed with code 0 (success fallback).")
-                    self.mqtt_client.publish(f"/button{button_id}/status", "success")
-                    self.mqtt_client.publish(f"/task/status", "success")
+                    self.publish_status(button_id, "success")
                 else:
                     self.get_logger().error("BT process failed with non-zero return code.")
-                    self.mqtt_client.publish(f"/button{button_id}/status", "failed")
-                    self.mqtt_client.publish(f"/task/status", "failed")
+                    self.publish_status(button_id, "failed")
 
         except Exception as e:
             self.get_logger().error(f"Failed to run behavior tree: {str(e)}")
