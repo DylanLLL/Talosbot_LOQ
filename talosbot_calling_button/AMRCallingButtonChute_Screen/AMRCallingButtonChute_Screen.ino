@@ -169,7 +169,7 @@ void setup() {
   lcd.setCursor(0, 0);
   lcd.print("Calling Button");
   lcd.setCursor(0, 1);
-  lcd.print("CHUTE");
+  lcd.print("GIN");
 
   pinMode(BTN1_PIN, INPUT_PULLUP);
   pinMode(BTN2_PIN, INPUT_PULLUP); 

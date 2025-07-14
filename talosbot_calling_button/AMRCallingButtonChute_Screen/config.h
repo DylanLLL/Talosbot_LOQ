@@ -4,8 +4,8 @@
 // LCD SCL pin = 22
 
 #define HOME_WIFI 0
-#define WH_WIFI 0
-#define HOTSPOT_WIFI 1
+#define WH_WIFI 1
+#define HOTSPOT_WIFI 0
 
 #if HOME_WIFI
   const char* ssid = "Myhome918";
