@@ -22,24 +22,24 @@ def generate_launch_description():
     )
 
     default_map_path = PathJoinSubstitution(
-        [FindPackageShare('talosbot_navigation'), 'maps', 'wsk_24_Jun.yaml']
+        [FindPackageShare('talosbot_navigation'), 'maps', 'warehouse_decluttered.yaml']
     )
 
     nav2_config_path = PathJoinSubstitution(
-        [FindPackageShare('talosbot_navigation'), 'config', 'navigation_mppi_keepout.yaml']
+        [FindPackageShare('talosbot_navigation'), 'config', 'navigation_ipc.yaml'] #navigation_rpp_keepout.yaml
     )
 
     keepout_config_path = PathJoinSubstitution(
         [FindPackageShare('talosbot_navigation'), 'config', 'keepout_params.yaml']
     )
     mask_map_path = PathJoinSubstitution(
-        [FindPackageShare('talosbot_navigation'), 'maps', 'wsk_24_Jun_filter.yaml']
+        [FindPackageShare('talosbot_navigation'), 'maps', 'warehouse_decluttered_filter.yaml']
     )
 
     return LaunchDescription([
         DeclareLaunchArgument(
             name='sim', 
-            default_value='true',
+            default_value='false',
             description='Enable use_sime_time to true'
         ),
 

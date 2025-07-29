@@ -18,11 +18,11 @@ def generate_launch_description():
     )
 
     default_map_path = PathJoinSubstitution(
-        [FindPackageShare('talosbot_navigation'), 'maps', 'warehouseR.yaml']
+        [FindPackageShare('talosbot_navigation'), 'maps', 'warehouse.yaml']
     )
 
     nav2_config_path = PathJoinSubstitution(
-        [FindPackageShare('talosbot_navigation'), 'config', 'navigation_sim.yaml']
+        [FindPackageShare('talosbot_navigation'), 'config', 'navigation_rpp_keepout.yaml']
     )
 
 
