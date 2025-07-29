@@ -216,7 +216,7 @@ void loop() {
     reconnect();
   }
   client.loop();
-
+  Serial.print(gin_task_received)
   unsigned long now = millis();
   bool button_BES_read = digitalRead(BTN1_PIN);
   bool button_return_BES_read = digitalRead(BTN2_PIN);
@@ -227,6 +227,7 @@ void loop() {
         String msg = String(1);
         //String msg = String(1.0) + "," + String(2.0) + "," + String(0.000);
         client.publish("/button/task", msg.c_str());
+        gin_task_received = false;
       }
       prev_button_BES_read = button_BES_read;
       prev_button_BES_press = millis(); 
@@ -239,6 +240,7 @@ void loop() {
         String msg = String(2);
         //String msg = String(1.0) + "," + String(2.0) + "," + String(0.000);
         client.publish("/button/task", msg.c_str());
+        gin_task_received = false;
       }
       prev_button_return_BES_read = button_return_BES_read;
       prev_button_return_BES_press = millis();
