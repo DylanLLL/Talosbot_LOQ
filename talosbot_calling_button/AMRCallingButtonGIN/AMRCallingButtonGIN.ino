@@ -27,6 +27,7 @@
 
 unsigned long prev_button_BES_press = 0;
 bool prev_button_BES_read = true;
+bool gin_task_received = false;
 
 unsigned long prev_button_return_BES_press = 0;
 bool prev_button_return_BES_read = true;
@@ -142,6 +143,20 @@ void callback(char* topic, byte* payload, unsigned int length) {
       task_status = false;
     }
   }
+  if (String(topic) == "/gin/task") {
+  char terminated_payload[length + 1];
+  memcpy(terminated_payload, payload, length);
+  terminated_payload[length] = '\0';
+
+    if (strlen(terminated_payload) > 0) {
+      gin_task_received = true;
+      Serial.print("Received /gin/task value: ");
+      Serial.println(terminated_payload);
+    } else {
+      gin_task_received = false;
+      Serial.println("Received /gin/task but it's empty");
+    }
+  }
 }
 
 void reconnect() {
@@ -159,6 +174,7 @@ void reconnect() {
       client.subscribe(feedback_button_BES_topic.c_str(), 0); // Subscribe to feedback topics
       client.subscribe(feedback_button_return_BES_topic.c_str(), 0);
       client.subscribe(feedback_task_status.c_str(), 0);
+      client.subscribe("/gin/task", 0);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -205,7 +221,7 @@ void loop() {
   bool button_BES_read = digitalRead(BTN1_PIN);
   bool button_return_BES_read = digitalRead(BTN2_PIN);
 
-  if(button_BES_read != prev_button_BES_read && task_status == false){
+  if (button_BES_read != prev_button_BES_read && task_status == false && gin_task_received){
     if(millis() - prev_button_BES_press > 250){
       if(!button_BES_read){
         String msg = String(1);
@@ -217,7 +233,7 @@ void loop() {
     }
   }
 
-  if(button_return_BES_read != prev_button_return_BES_read && task_status == false){
+  if (button_return_BES_read != prev_button_return_BES_read && task_status == false && gin_task_received){
     if(millis() - prev_button_return_BES_press > 250){
       if(!button_return_BES_read){
         String msg = String(2);
