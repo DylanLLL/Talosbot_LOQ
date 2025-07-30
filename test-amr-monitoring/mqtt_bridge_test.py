@@ -6,12 +6,12 @@ import time
 from datetime import datetime, timezone, timedelta
 
 # Config dari file config Anda
-MQTT_BROKER = "192.168.240.222"
+MQTT_BROKER = "10.177.143.122"
 MQTT_PORT = 1883
 MQTT_TOPIC_BUTTON = "/button/task"
 MQTT_TOPIC_GIN = "/gin/task"  # New GIN topic
 
-WEB_API_BASE_URL = "http://localhost:3001"
+WEB_API_BASE_URL = "http://34.1.143.136:8080"
 BUTTON_PRESS_ENDPOINT = f"{WEB_API_BASE_URL}/api/button-press"
 TASK_STATUS_ENDPOINT = f"{WEB_API_BASE_URL}/api/task-status"
 TASK_HISTORY_ENDPOINT = f"{WEB_API_BASE_URL}/api/task-history"
