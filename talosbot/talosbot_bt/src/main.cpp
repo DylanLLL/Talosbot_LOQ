@@ -18,8 +18,8 @@
 #include <talosbot_bt/actions/talosbot_wait_action_client.hpp>
 #include <talosbot_bt/actions/talosbot_move_base_angular_action_client.hpp>
 #include <talosbot_bt/actions/talosbot_relocalize_action_client.hpp>
-#include <talosbot_bt/actions/talosbot_set_tolerance_action_client.hpp> 
-
+#include <talosbot_bt/actions/talosbot_set_tolerance_action_client.hpp>
+#include <talosbot_bt/actions/talosbot_check_area_clear_action_client.hpp>
 
 #include <talosbot_bt/conditions/is_battery_low_condition.hpp>
 
@@ -40,6 +40,7 @@ using TalosbotWaitActionClient = talosbot_bt::TalosbotWaitActionClient;
 using TalosbotMoveBaseAngularActionClient = talosbot_bt::TalosbotMoveBaseAngularActionClient;
 using TalosbotRelocalizeActionClient = talosbot_bt::TalosbotRelocalizeActionClient;
 using TalosbotSetToleranceActionClient = talosbot_bt::TalosbotSetToleranceActionClient;
+using TalosbotCheckAreaClearActionClient = talosbot_bt::TalosbotCheckAreaClearActionClient;
 
 using IsBatteryLowCondition = talosbot_bt::IsBatteryLowCondition;
 
@@ -79,9 +80,10 @@ int main(int argc, char** argv)
   factory.registerNodeType<TalosbotMoveBaseLinearActionClient>("TalosbotMoveBaseLinear", params);
   factory.registerNodeType<TalosbotWaitActionClient>("TalosbotWait", params);
   factory.registerNodeType<TalosbotMoveBaseAngularActionClient>("TalosbotMoveBaseAngular", params);
-  factory.registerNodeType<TalosbotRelocalizeActionClient>("TalosbotRelocalize", params); 
+  factory.registerNodeType<TalosbotRelocalizeActionClient>("TalosbotRelocalize", params);
   factory.registerNodeType<TalosbotSetToleranceActionClient>("TalosbotSetTolerance", params);
- 
+  factory.registerNodeType<TalosbotCheckAreaClearActionClient>("TalosbotCheckAreaClear", params);
+
   factory.registerNodeType<IsBatteryLowCondition>("IsBatteryLow");
 
   factory.registerNodeType<GetNextPoseHelper>("GetNextPoseHelper");
@@ -99,7 +101,7 @@ int main(int argc, char** argv)
 
   BT::FileLogger2 file_logger(tree, btlog_file_);
   BT::SqliteLogger sqlite_logger(tree, sqlite_file_);
-  
+
   BT::printTreeRecursively(tree.rootNode());
 
   tree.tickWhileRunning();

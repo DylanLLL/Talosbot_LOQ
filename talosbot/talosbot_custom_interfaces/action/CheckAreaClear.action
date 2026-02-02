@@ -1,0 +1,8 @@
+#Goal
+bool check_area
+---
+#Result
+bool is_clear
+---
+#Feedback
+string status

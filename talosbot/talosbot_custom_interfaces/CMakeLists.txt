@@ -11,16 +11,17 @@ find_package(action_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
-set(action_files 
-    "action/LockingPin.action" 
-    "action/GoMiddleFrontDoor.action" 
-    "action/GoUnderTrolley.action" 
-    "action/MoveBaseLinear.action" 
-    "action/Wait.action" 
-    "action/MoveBaseAngular.action" 
+set(action_files
+    "action/LockingPin.action"
+    "action/GoMiddleFrontDoor.action"
+    "action/GoUnderTrolley.action"
+    "action/MoveBaseLinear.action"
+    "action/Wait.action"
+    "action/MoveBaseAngular.action"
     "action/Relocalize.action"
     "action/Template.action"
-    "action/SetTolerance.action")
+    "action/SetTolerance.action"
+    "action/CheckAreaClear.action")
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${action_files}

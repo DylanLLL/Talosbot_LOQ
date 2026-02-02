@@ -56,5 +56,11 @@ def generate_launch_description():
             package='talosbot_action',
             executable='talosbot_set_tolerance_action_server',
             output='screen',
+        ),
+        Node(
+            name='talosbot_action',
+            package='talosbot_action',
+            executable='talosbot_check_area_clear_action_server',
+            output='screen',
         )
     ])
