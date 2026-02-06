@@ -34,7 +34,7 @@ def generate_launch_description():
     )
 
     world_path = PathJoinSubstitution(
-        [FindPackageShare("talosbot_gazebo"), "worlds", "warehouse_decluttered.world"]
+        [FindPackageShare("talosbot_gazebo"), "worlds", "marunda.world"] #warehouse_decluttered.world  marunda.world
     )
 
     description_launch_path = PathJoinSubstitution(
