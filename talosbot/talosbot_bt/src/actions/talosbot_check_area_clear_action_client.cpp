@@ -15,8 +15,12 @@ bool TalosbotCheckAreaClearActionClient::setGoal(RosActionNode::Goal& goal)
 
 BT::NodeStatus TalosbotCheckAreaClearActionClient::onResultReceived(const RosActionNode::WrappedResult& wr)
 {
-  std::cout << "Result received: " << wr.result->is_clear << std::endl;
-  return BT::NodeStatus::SUCCESS;
+  bool is_clear = wr.result->is_clear;
+  std::cout << "Result received: is_clear=" << (is_clear ? "true" : "false") << std::endl;
+
+  // Return SUCCESS if area is clear (robot can proceed)
+  // Return FAILURE if area is occupied (robot should not proceed)
+  return is_clear ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }
 
 BT::NodeStatus TalosbotCheckAreaClearActionClient::onFeedback(const std::shared_ptr<const Feedback> feedback)

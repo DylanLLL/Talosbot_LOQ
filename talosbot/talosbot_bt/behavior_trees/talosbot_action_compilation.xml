@@ -100,5 +100,13 @@
                   default="/talosbot_set_tolerance"/>
         </Action>
 
+        <Action ID="TalosbotCheckAreaClear"
+                editable="true">
+            <input_port name="check"
+                  default="true"/>
+            <input_port name="action_name"
+                  default="/talosbot_check_area_clear"/>
+        </Action>
+        
     </TreeNodesModel>
 </root>
