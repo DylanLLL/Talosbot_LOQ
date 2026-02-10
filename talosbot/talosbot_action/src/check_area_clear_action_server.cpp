@@ -88,8 +88,10 @@ private:
       float robot_angle = laser_angle + yaw_offset_rad;
 
       // Normalize angle to [-pi, pi]
-      while (robot_angle > M_PI) robot_angle -= 2.0 * M_PI;
-      while (robot_angle < -M_PI) robot_angle += 2.0 * M_PI;
+      while (robot_angle > M_PI)
+        robot_angle -= 2.0 * M_PI;
+      while (robot_angle < -M_PI)
+        robot_angle += 2.0 * M_PI;
 
       // Only consider rays in the front angular range (relative to robot forward)
       if (std::abs(robot_angle) > front_angle_rad)
@@ -105,8 +107,8 @@ private:
       float y = range * std::sin(robot_angle);
 
       // Check if the hit point falls within the rectangular detection zone
-      if (x >= minDetectionDistance_ && x <= maxDetectionDistance_ &&
-          y >= -detectionWidth_ / 2.0 && y <= detectionWidth_ / 2.0)
+      if (x >= minDetectionDistance_ && x <= maxDetectionDistance_ && y >= -detectionWidth_ / 2.0 &&
+          y <= detectionWidth_ / 2.0)
       {
         rays_in_zone++;
         det_min_x = std::min(det_min_x, x);
@@ -155,26 +157,19 @@ private:
           rays_in_range++;
       }
 
-      RCLCPP_INFO(this->get_logger(),
-                  "LaserScan: %zu total rays, front_rays=%d, hits_in_zone=%d",
-                  msg->ranges.size(), total_front_rays, rays_in_zone);
+      RCLCPP_INFO(this->get_logger(), "LaserScan: %zu total rays, front_rays=%d, hits_in_zone=%d", msg->ranges.size(),
+                  total_front_rays, rays_in_zone);
       RCLCPP_INFO(this->get_logger(),
                   "Front ray ranges: min=%.2f, max=%.2f | close(x<%.2f)=%d, in_range=%d, far(x>%.2f)=%d, invalid=%d",
-                  front_min_range, front_max_range,
-                  minDetectionDistance_, rays_close,
-                  rays_in_range,
-                  maxDetectionDistance_, rays_far,
-                  rays_invalid);
-      RCLCPP_INFO(this->get_logger(),
-                  "Detection zone: X=[%.2f, %.2f], Y=[%.2f, %.2f], front_angle=±%.1f°",
-                  minDetectionDistance_, maxDetectionDistance_,
-                  -detectionWidth_ / 2.0, detectionWidth_ / 2.0,
+                  front_min_range, front_max_range, minDetectionDistance_, rays_close, rays_in_range,
+                  maxDetectionDistance_, rays_far, rays_invalid);
+      RCLCPP_INFO(this->get_logger(), "Detection zone: X=[%.2f, %.2f], Y=[%.2f, %.2f], front_angle=±%.1f°",
+                  minDetectionDistance_, maxDetectionDistance_, -detectionWidth_ / 2.0, detectionWidth_ / 2.0,
                   frontAngleRange_);
       if (rays_in_zone > 0)
       {
-        RCLCPP_INFO(this->get_logger(),
-                    "Detected points bounds: X=[%.2f, %.2f], Y=[%.2f, %.2f]",
-                    det_min_x, det_max_x, det_min_y, det_max_y);
+        RCLCPP_INFO(this->get_logger(), "Detected points bounds: X=[%.2f, %.2f], Y=[%.2f, %.2f]", det_min_x, det_max_x,
+                    det_min_y, det_max_y);
       }
       debug_log_count_++;
     }
@@ -288,9 +283,8 @@ private:
         start_time = this->now();
 
         // Log progress
-        RCLCPP_INFO(this->get_logger(), "Sample %d/%d: hits=%d, clear=%s",
-                    samples_collected, numSamples_, hits_in_zone_,
-                    area_is_clear_ ? "YES" : "NO");
+        RCLCPP_INFO(this->get_logger(), "Sample %d/%d: hits=%d, clear=%s", samples_collected, numSamples_,
+                    hits_in_zone_, area_is_clear_ ? "YES" : "NO");
 
         feedback->status = "Sampling: " + std::to_string(samples_collected) + "/" + std::to_string(numSamples_);
         goal_handle->publish_feedback(feedback);
@@ -320,7 +314,7 @@ private:
     this->declare_parameter("scanTopic", "/scan");
 
     // Detection zone parameters (rectangular zone in front of robot)
-    this->declare_parameter("minDetectionDistance", 0.85);  // Start detection beyond trolley front bar (~0.81m)
+    this->declare_parameter("minDetectionDistance", 0.65);  // Start detection beyond trolley bars (real: ~0.59m, sim: ~0.81m)
     this->declare_parameter("maxDetectionDistance", 2.5);   // End detection at 2.5m ahead
     this->declare_parameter("detectionWidth", 1.0);         // 1.0m wide detection zone (±0.5m from center)
     this->declare_parameter("frontAngleRange", 45.0);       // Only consider rays within ±45° from forward
@@ -338,7 +332,7 @@ private:
 
   void refresh_params()
   {
-    this->get_parameter_or<float>("minDetectionDistance", minDetectionDistance_, 0.85);
+    this->get_parameter_or<float>("minDetectionDistance", minDetectionDistance_, 0.65);
     this->get_parameter_or<float>("maxDetectionDistance", maxDetectionDistance_, 2.5);
     this->get_parameter_or<float>("detectionWidth", detectionWidth_, 1.0);
     this->get_parameter_or<float>("frontAngleRange", frontAngleRange_, 45.0);
@@ -353,8 +347,8 @@ private:
   float minDetectionDistance_;
   float maxDetectionDistance_;
   float detectionWidth_;
-  float frontAngleRange_;   // Degrees: only consider rays within ±this angle from forward
-  float laserYawOffset_;    // Degrees: LIDAR yaw rotation offset from robot forward
+  float frontAngleRange_;  // Degrees: only consider rays within ±this angle from forward
+  float laserYawOffset_;   // Degrees: LIDAR yaw rotation offset from robot forward
   int minRaysToOccupy_;
   int numSamples_;
   float timeoutSeconds_;
